@@ -2,6 +2,20 @@ package org.infinite.libs.graphics
 
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.resources.Identifier
+import org.infinite.libs.graphics.graphics2d.CanvasStyle
+import org.infinite.libs.graphics.graphics2d.Enums.Direction
+import org.infinite.libs.graphics.graphics2d.Enums.FillRule
+import org.infinite.libs.graphics.graphics2d.Enums.ImageSmoothingQuality
+import org.infinite.libs.graphics.graphics2d.Enums.LineCap
+import org.infinite.libs.graphics.graphics2d.Enums.LineJoin
+import org.infinite.libs.graphics.graphics2d.Enums.Repetition
+import org.infinite.libs.graphics.graphics2d.Enums.TextAlign
+import org.infinite.libs.graphics.graphics2d.Enums.TextBaseline
+import org.infinite.libs.graphics.graphics2d.types.CanvasPattern
+import org.infinite.libs.graphics.graphics2d.types.ColorStyle
+import org.infinite.libs.graphics.graphics2d.types.LinearGradient
+import org.infinite.libs.graphics.graphics2d.types.RadialGradient
+import org.infinite.libs.graphics.graphics2d.types.TextMetrics
 import org.joml.Matrix4f
 
 /**
@@ -10,78 +24,6 @@ import org.joml.Matrix4f
 class Graphics2D(
     private val gui: GuiGraphics,
 ) {
-    // --- 型定義用の内部クラス・インターフェース ---
-
-    interface CanvasStyle
-
-    @JvmInline
-    value class ColorStyle(
-        val argb: Int,
-    ) : CanvasStyle
-
-    class LinearGradient(
-        val x0: Double,
-        val y0: Double,
-        val x1: Double,
-        val y1: Double,
-    ) : CanvasStyle {
-        private val colorStops = mutableListOf<Pair<Double, Int>>()
-
-        fun addColorStop(
-            offset: Double,
-            color: Int,
-        ) {
-            colorStops.add(offset to color)
-        }
-    }
-
-    class RadialGradient(
-        val x0: Double,
-        val y0: Double,
-        val r0: Double,
-        val x1: Double,
-        val y1: Double,
-        val r1: Double,
-    ) : CanvasStyle {
-        private val colorStops = mutableListOf<Pair<Double, Int>>()
-
-        fun addColorStop(
-            offset: Double,
-            color: Int,
-        ) {
-            colorStops.add(offset to color)
-        }
-    }
-
-    class CanvasPattern(
-        val image: Identifier,
-        val repetition: Repetition,
-    ) : CanvasStyle
-
-    data class TextMetrics(
-        val width: Double,
-        val actualBoundingBoxAscent: Double,
-        val actualBoundingBoxDescent: Double,
-    )
-
-    // --- Enum定義 (キャメルケース) ---
-
-    enum class Repetition { Repeat, RepeatX, RepeatY, NoRepeat }
-
-    enum class LineCap { Butt, Round, Square }
-
-    enum class LineJoin { Round, Bevel, Miter }
-
-    enum class TextAlign { Start, End, Left, Right, Center }
-
-    enum class TextBaseline { Top, Hanging, Middle, Alphabetic, Ideographic, Bottom }
-
-    enum class Direction { Ltr, Rtl, Inherit }
-
-    enum class ImageSmoothingQuality { Low, Medium, High }
-
-    enum class FillRule { Nonzero, Evenodd }
-
     // --- インスタンスプロパティ ---
 
     var fillStyle: CanvasStyle = ColorStyle(0xFF000000.toInt())
