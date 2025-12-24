@@ -12,4 +12,24 @@ sealed interface RenderCommand {
         val color: Int,
         override val zIndex: Int,
     ) : RenderCommand
+
+    data class DrawRectFloat(
+        val x: Float,
+        val y: Float,
+        val width: Float,
+        val height: Float,
+        val strokeWidth: Float,
+        val color: Int,
+        override val zIndex: Int,
+    ) : RenderCommand
+
+    data class DrawRectDouble(
+        val x: Double,
+        val y: Double,
+        val width: Double,
+        val height: Double,
+        val strokeWidth: Double,
+        val color: Int,
+        override val zIndex: Int,
+    ) : RenderCommand
 }

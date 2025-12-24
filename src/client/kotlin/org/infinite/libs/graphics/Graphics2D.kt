@@ -32,6 +32,29 @@ class Graphics2D(
         commandQueue.add(RenderCommand.DrawRectInt(x, y, width, height, strokeWidth, strokeColor, zIndex))
     }
 
+    fun strokeRect(
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float
+    ) {
+        val style = strokeStyle ?: return
+        val (strokeColor, strokeWidthDouble) = style
+        val strokeWidth = strokeWidthDouble.toFloat()
+        commandQueue.add(RenderCommand.DrawRectFloat(x, y, width, height, strokeWidth, strokeColor, zIndex))
+    }
+
+    fun strokeRect(
+        x: Double,
+        y: Double,
+        width: Double,
+        height: Double
+    ) {
+        val style = strokeStyle ?: return
+        val (strokeColor, strokeWidth) = style
+        commandQueue.add(RenderCommand.DrawRectDouble(x, y, width, height, strokeWidth, strokeColor, zIndex))
+    }
+
     // 保存された値を返す（スレッド安全）
     fun gameDelta(): Float = capturedGameDelta
 
