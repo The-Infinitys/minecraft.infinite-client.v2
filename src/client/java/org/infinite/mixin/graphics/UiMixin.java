@@ -11,13 +11,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Gui.class)
 public class UiMixin {
-    @Inject(method = "render", at = @At("HEAD"))
-    public void onRenderHead(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-        RenderTicks.INSTANCE.onStartUiRendering(guiGraphics, deltaTracker);
-    }
+  @Inject(method = "render", at = @At("HEAD"))
+  public void onRenderHead(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+    RenderTicks.INSTANCE.onStartUiRendering(guiGraphics, deltaTracker);
+  }
 
-    @Inject(method = "render", at = @At("TAIL"))
-    public void onRenderTail(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-        RenderTicks.INSTANCE.onEndUiRendering(guiGraphics, deltaTracker);
-    }
+  @Inject(method = "render", at = @At("TAIL"))
+  public void onRenderTail(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+    RenderTicks.INSTANCE.onEndUiRendering(guiGraphics, deltaTracker);
+  }
 }

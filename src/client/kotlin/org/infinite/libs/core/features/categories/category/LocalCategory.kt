@@ -67,19 +67,20 @@ open class LocalCategory : Category<KClass<out LocalFeature>, LocalFeature>() {
     suspend fun onStartUiRendering(deltaTracker: DeltaTracker): PriorityBlockingQueue<RenderCommand> {
         val globalCommandQueue = PriorityBlockingQueue<RenderCommand>(256, compareBy { it.zIndex })
         coroutineScope {
-            features.values.map { feature ->
-                async(Dispatchers.Default) {
-                    val graphics2D = Graphics2D(deltaTracker)
-                    feature.onStartUiRendering(graphics2D)
+            features.values
+                .map { feature ->
+                    async(Dispatchers.Default) {
+                        val graphics2D = Graphics2D(deltaTracker)
+                        feature.onStartUiRendering(graphics2D)
 
-                    // 2. この feature の計算が終わったら、統合キューへ全命令を移送する
-                    // poll() を使って全件抽出
-                    while (true) {
-                        val cmd = graphics2D.poll() ?: break
-                        globalCommandQueue.add(cmd)
+                        // 2. この feature の計算が終わったら、統合キューへ全命令を移送する
+                        // poll() を使って全件抽出
+                        while (true) {
+                            val cmd = graphics2D.poll() ?: break
+                            globalCommandQueue.add(cmd)
+                        }
                     }
-                }
-            }.awaitAll() // 全ての Feature の計算と統合が終わるのを待つ
+                }.awaitAll() // 全ての Feature の計算と統合が終わるのを待つ
         }
         return globalCommandQueue
     }
@@ -87,19 +88,20 @@ open class LocalCategory : Category<KClass<out LocalFeature>, LocalFeature>() {
     suspend fun onEndUiRendering(deltaTracker: DeltaTracker): PriorityBlockingQueue<RenderCommand> {
         val globalCommandQueue = PriorityBlockingQueue<RenderCommand>(256, compareBy { it.zIndex })
         coroutineScope {
-            features.values.map { feature ->
-                async(Dispatchers.Default) {
-                    val graphics2D = Graphics2D(deltaTracker)
-                    feature.onEndUiRendering(graphics2D)
+            features.values
+                .map { feature ->
+                    async(Dispatchers.Default) {
+                        val graphics2D = Graphics2D(deltaTracker)
+                        feature.onEndUiRendering(graphics2D)
 
-                    // 2. この feature の計算が終わったら、統合キューへ全命令を移送する
-                    // poll() を使って全件抽出
-                    while (true) {
-                        val cmd = graphics2D.poll() ?: break
-                        globalCommandQueue.add(cmd)
+                        // 2. この feature の計算が終わったら、統合キューへ全命令を移送する
+                        // poll() を使って全件抽出
+                        while (true) {
+                            val cmd = graphics2D.poll() ?: break
+                            globalCommandQueue.add(cmd)
+                        }
                     }
-                }
-            }.awaitAll() // 全ての Feature の計算と統合が終わるのを待つ
+                }.awaitAll() // 全ての Feature の計算と統合が終わるのを待つ
         }
         return globalCommandQueue
     }

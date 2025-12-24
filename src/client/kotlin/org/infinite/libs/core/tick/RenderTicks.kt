@@ -9,18 +9,26 @@ import org.infinite.libs.graphics.graphics2d.RenderSystem2D
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 
 object RenderTicks {
-    fun onStartUiRendering(guiGraphics: GuiGraphics, deltaTracker: DeltaTracker) {
-        val commands = runBlocking {
-            return@runBlocking UltimateClient.localFeatureCategories.onStartUiRendering(deltaTracker)
-        }
+    fun onStartUiRendering(
+        guiGraphics: GuiGraphics,
+        deltaTracker: DeltaTracker,
+    ) {
+        val commands =
+            runBlocking {
+                return@runBlocking UltimateClient.localFeatureCategories.onStartUiRendering(deltaTracker)
+            }
         val renderSystem2D = RenderSystem2D(guiGraphics)
         renderSystem2D.render(commands)
     }
 
-    fun onEndUiRendering(guiGraphics: GuiGraphics, deltaTracker: DeltaTracker) {
-        val commands = runBlocking {
-            return@runBlocking UltimateClient.localFeatureCategories.onEndUiRendering(deltaTracker)
-        }
+    fun onEndUiRendering(
+        guiGraphics: GuiGraphics,
+        deltaTracker: DeltaTracker,
+    ) {
+        val commands =
+            runBlocking {
+                return@runBlocking UltimateClient.localFeatureCategories.onEndUiRendering(deltaTracker)
+            }
         val renderSystem2D = RenderSystem2D(guiGraphics)
         renderSystem2D.render(commands)
     }

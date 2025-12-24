@@ -19,11 +19,7 @@ open class LocalFeature :
     override fun onEndTick() {
     }
 
-    open fun onStartUiRendering(graphics2D: Graphics2D): Graphics2D {
-        return graphics2D
-    }
+    open fun onStartUiRendering(graphics2D: Graphics2D): Graphics2D = graphics2D
 
-    open fun onEndUiRendering(graphics2D: Graphics2D): Graphics2D {
-        return graphics2D
-    }
+    open fun onEndUiRendering(graphics2D: Graphics2D): Graphics2D = graphics2D
 }

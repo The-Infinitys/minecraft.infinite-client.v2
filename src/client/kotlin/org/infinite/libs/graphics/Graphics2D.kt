@@ -11,7 +11,7 @@ import kotlin.math.roundToInt
  */
 class Graphics2D(
     deltaTracker: DeltaTracker, // コンストラクタ引数としてのみ受け取る
-    var zIndex: Int = 0
+    var zIndex: Int = 0,
 ) {
     // インスタンス化された瞬間の値を不変(val)として保持
     private val capturedGameDelta: Float = deltaTracker.gameTimeDeltaTicks
@@ -20,7 +20,12 @@ class Graphics2D(
     var strokeStyle: StrokeStyle? = null // 必要に応じて可変に
     private val commandQueue = PriorityBlockingQueue<RenderCommand>(100, compareBy { it.zIndex })
 
-    fun strokeRect(x: Int, y: Int, width: Int, height: Int) {
+    fun strokeRect(
+        x: Int,
+        y: Int,
+        width: Int,
+        height: Int,
+    ) {
         val style = strokeStyle ?: return
         val (strokeColor, strokeWidthDouble) = style
         val strokeWidth = strokeWidthDouble.roundToInt()
@@ -29,6 +34,7 @@ class Graphics2D(
 
     // 保存された値を返す（スレッド安全）
     fun gameDelta(): Float = capturedGameDelta
+
     fun realDelta(): Float = capturedRealDelta
 
     fun poll(): RenderCommand? = commandQueue.poll()

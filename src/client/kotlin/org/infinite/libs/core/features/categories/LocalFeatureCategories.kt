@@ -19,8 +19,9 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.PriorityBlockingQueue
 import kotlin.reflect.KClass
 
-class LocalFeatureCategories(categories: List<LocalCategory>) :
-    FeatureCategories<KClass<out LocalFeature>, LocalFeature, KClass<out LocalCategory>, LocalCategory>() {
+class LocalFeatureCategories(
+    categories: List<LocalCategory>,
+) : FeatureCategories<KClass<out LocalFeature>, LocalFeature, KClass<out LocalCategory>, LocalCategory>() {
     override val categories: ConcurrentHashMap<KClass<out LocalCategory>, LocalCategory> = ConcurrentHashMap()
 
     // 接続ごとに作り直すためのスコープ。初期値は null または空のスコープ
@@ -116,15 +117,16 @@ class LocalFeatureCategories(categories: List<LocalCategory>) :
     suspend fun onStartUiRendering(deltaTracker: DeltaTracker): List<RenderCommand> {
         val globalCommandQueue = PriorityBlockingQueue<RenderCommand>(512, compareBy { it.zIndex })
         coroutineScope {
-            categories.values.map { category ->
-                async(Dispatchers.Default) {
-                    val queue = category.onStartUiRendering(deltaTracker)
-                    while (true) {
-                        val cmd = queue.poll() ?: break
-                        globalCommandQueue.add(cmd)
+            categories.values
+                .map { category ->
+                    async(Dispatchers.Default) {
+                        val queue = category.onStartUiRendering(deltaTracker)
+                        while (true) {
+                            val cmd = queue.poll() ?: break
+                            globalCommandQueue.add(cmd)
+                        }
                     }
-                }
-            }.awaitAll() // 全ての Feature の計算と統合が終わるのを待つ
+                }.awaitAll() // 全ての Feature の計算と統合が終わるのを待つ
         }
         return globalCommandQueue.toList()
     }
@@ -132,15 +134,16 @@ class LocalFeatureCategories(categories: List<LocalCategory>) :
     suspend fun onEndUiRendering(deltaTracker: DeltaTracker): List<RenderCommand> {
         val globalCommandQueue = PriorityBlockingQueue<RenderCommand>(512, compareBy { it.zIndex })
         coroutineScope {
-            categories.values.map { category ->
-                async(Dispatchers.Default) {
-                    val queue = category.onEndUiRendering(deltaTracker)
-                    while (true) {
-                        val cmd = queue.poll() ?: break
-                        globalCommandQueue.add(cmd)
+            categories.values
+                .map { category ->
+                    async(Dispatchers.Default) {
+                        val queue = category.onEndUiRendering(deltaTracker)
+                        while (true) {
+                            val cmd = queue.poll() ?: break
+                            globalCommandQueue.add(cmd)
+                        }
                     }
-                }
-            }.awaitAll() // 全ての Feature の計算と統合が終わるのを待つ
+                }.awaitAll() // 全ての Feature の計算と統合が終わるのを待つ
         }
         return globalCommandQueue.toList()
     }

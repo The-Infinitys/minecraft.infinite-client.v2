@@ -8,6 +8,7 @@ class RenderSystem2D(
     private val gui: GuiGraphics,
 ) {
     private val rect: RectRenderer = RectRenderer(gui)
+
     fun render(commands: List<RenderCommand>) {
         commands.forEach { command ->
             command(command)

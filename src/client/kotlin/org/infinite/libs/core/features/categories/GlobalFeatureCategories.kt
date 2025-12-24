@@ -13,12 +13,15 @@ import org.infinite.libs.core.features.feature.GlobalFeature
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
-class GlobalFeatureCategories(categories:List<GlobalCategory>) :
-    FeatureCategories<KClass<out GlobalFeature>, GlobalFeature, KClass<out GlobalCategory>, GlobalCategory>() {
+class GlobalFeatureCategories(
+    categories: List<GlobalCategory>,
+) : FeatureCategories<KClass<out GlobalFeature>, GlobalFeature, KClass<out GlobalCategory>, GlobalCategory>() {
     override val categories: ConcurrentHashMap<KClass<out GlobalCategory>, GlobalCategory> = ConcurrentHashMap()
+
     init {
         categories.forEach { insert(it) }
     }
+
     // 初期化などのライフサイクルを管理するスコープ
     private val lifecycleScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
