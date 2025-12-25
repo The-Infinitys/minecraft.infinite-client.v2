@@ -11,7 +11,7 @@ import org.joml.Matrix3x2fc;
 import org.jspecify.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
-public record ColoredFloatRectangleRenderState(
+public record ColoredRectangleRenderState(
     RenderPipeline pipeline,
     TextureSetup textureSetup,
     Matrix3x2fc pose,
@@ -19,13 +19,15 @@ public record ColoredFloatRectangleRenderState(
     float y0,
     float x1,
     float y1,
-    int col1,
-    int col2,
+    int colTopLeft, // 左上の色
+    int colBottomLeft, // 左下の色
+    int colBottomRight, // 右下の色
+    int colTopRight, // 右上の色
     @Nullable ScreenRectangle scissorArea,
     @Nullable ScreenRectangle bounds)
     implements GuiElementRenderState {
 
-  public ColoredFloatRectangleRenderState(
+  public ColoredRectangleRenderState(
       RenderPipeline renderPipeline,
       TextureSetup textureSetup,
       Matrix3x2fc matrix3x2fc,
@@ -33,8 +35,10 @@ public record ColoredFloatRectangleRenderState(
       float y0,
       float x1,
       float y1,
-      int col1,
-      int col2,
+      int colTopLeft,
+      int colBottomLeft,
+      int colBottomRight,
+      int colTopRight,
       @Nullable ScreenRectangle screenRectangle) {
     this(
         renderPipeline,
@@ -44,17 +48,31 @@ public record ColoredFloatRectangleRenderState(
         y0,
         x1,
         y1,
-        col1,
-        col2,
+        colTopLeft,
+        colBottomLeft,
+        colBottomRight,
+        colTopRight,
         screenRectangle,
         getBounds(x0, y0, x1, y1, matrix3x2fc, screenRectangle));
   }
 
   public void buildVertices(VertexConsumer vertexConsumer) {
-    vertexConsumer.addVertexWith2DPose(this.pose(), this.x0(), this.y0()).setColor(this.col1());
-    vertexConsumer.addVertexWith2DPose(this.pose(), this.x0(), this.y1()).setColor(this.col2());
-    vertexConsumer.addVertexWith2DPose(this.pose(), this.x1(), this.y1()).setColor(this.col2());
-    vertexConsumer.addVertexWith2DPose(this.pose(), this.x1(), this.y0()).setColor(this.col1());
+    // 頂点1: 左上 (x0, y0)
+    vertexConsumer
+        .addVertexWith2DPose(this.pose(), this.x0(), this.y0())
+        .setColor(this.colTopLeft());
+    // 頂点2: 左下 (x0, y1)
+    vertexConsumer
+        .addVertexWith2DPose(this.pose(), this.x0(), this.y1())
+        .setColor(this.colBottomLeft());
+    // 頂点3: 右下 (x1, y1)
+    vertexConsumer
+        .addVertexWith2DPose(this.pose(), this.x1(), this.y1())
+        .setColor(this.colBottomRight());
+    // 頂点4: 右上 (x1, y0)
+    vertexConsumer
+        .addVertexWith2DPose(this.pose(), this.x1(), this.y0())
+        .setColor(this.colTopRight());
   }
 
   private static @Nullable ScreenRectangle getBounds(
@@ -64,12 +82,10 @@ public record ColoredFloatRectangleRenderState(
       float y1,
       Matrix3x2fc matrix3x2fc,
       @Nullable ScreenRectangle screenRectangle) {
-    // ScreenRectangleはint型を期待するため、四捨五入または切り捨て/切り上げの判断が必要
-    // ここでは包含領域を確保するためMath.floor/Math.ceil的なキャストを想定
-    int ix0 = (int) x0;
-    int iy0 = (int) y0;
-    int iw = (int) (x1 - x0);
-    int ih = (int) (y1 - y0);
+    int ix0 = (int) Math.floor(x0);
+    int iy0 = (int) Math.floor(y0);
+    int iw = (int) Math.ceil(x1 - x0);
+    int ih = (int) Math.ceil(y1 - y0);
 
     ScreenRectangle screenRectangle2 =
         (new ScreenRectangle(ix0, iy0, iw, ih)).transformMaxBounds(matrix3x2fc);
