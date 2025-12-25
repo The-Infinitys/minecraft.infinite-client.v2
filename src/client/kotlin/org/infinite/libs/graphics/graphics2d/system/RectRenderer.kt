@@ -38,26 +38,47 @@ class RectRenderer(
     // --- オーバーロード (x2, y2 形式ではなく x, y, w, h 形式を想定) ---
 
     fun strokeRect(
-        x: Int, y: Int, w: Int, h: Int,
-        color: Int, strokeWidth: Int
+        x: Int,
+        y: Int,
+        w: Int,
+        h: Int,
+        color: Int,
+        strokeWidth: Int,
     ) = strokeRect(x.toFloat(), y.toFloat(), w.toFloat(), h.toFloat(), color, strokeWidth.toFloat())
 
     fun strokeRect(
-        x: Double, y: Double, w: Double, h: Double,
-        color: Int, strokeWidth: Double
+        x: Double,
+        y: Double,
+        w: Double,
+        h: Double,
+        color: Int,
+        strokeWidth: Double,
     ) = strokeRect(x.toFloat(), y.toFloat(), w.toFloat(), h.toFloat(), color, strokeWidth.toFloat())
 
     /**
      * 矩形を塗りつぶす (fillRect は境界線に影響されず、指定範囲をそのまま塗る)
      */
     fun fillRect(
-        x: Float, y: Float, w: Float, h: Float,
-        color: Int
+        x: Float,
+        y: Float,
+        w: Float,
+        h: Float,
+        color: Int,
     ) = guiGraphics.fill(x, y, x + w, y + h, color)
 
-    fun fillRect(x: Int, y: Int, w: Int, h: Int, color: Int) =
-        fillRect(x.toFloat(), y.toFloat(), w.toFloat(), h.toFloat(), color)
+    fun fillRect(
+        x: Int,
+        y: Int,
+        w: Int,
+        h: Int,
+        color: Int,
+    ) = fillRect(x.toFloat(), y.toFloat(), w.toFloat(), h.toFloat(), color)
 
-    fun fillRect(x: Double, y: Double, w: Double, h: Double, color: Int) =
-        fillRect(x.toFloat(), y.toFloat(), w.toFloat(), h.toFloat(), color)
+    fun fillRect(
+        x: Double,
+        y: Double,
+        w: Double,
+        h: Double,
+        color: Int,
+    ) = fillRect(x.toFloat(), y.toFloat(), w.toFloat(), h.toFloat(), color)
 }

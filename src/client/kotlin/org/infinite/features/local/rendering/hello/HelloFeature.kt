@@ -25,26 +25,33 @@ class HelloFeature : LocalFeature() {
         // zIndex を変えて重なりを確認
         graphics2D.zIndex = 20
         graphics2D.fillTriangle(
-            150f, 20f,  // 頂点0 (上)
-            120f, 80f,  // 頂点1 (左下)
-            180f, 80f,  // 頂点2 (右下)
+            150f,
+            20f, // 頂点0 (上)
+            120f,
+            80f, // 頂点1 (左下)
+            180f,
+            80f, // 頂点2 (右下)
             0xFFFF0000.toInt(), // 赤
             0xFF00FF00.toInt(), // 緑
-            0xFF0000FF.toInt()  // 青
+            0xFF0000FF.toInt(), // 青
         )
 
         // --- 3. グラデーション四角形 (QuadRenderer) ---
         // 少し歪んだ形状でテスト
         graphics2D.zIndex = 15
         graphics2D.fillQuad(
-            200f, 20f,  // 左上
-            220f, 80f,  // 左下
-            300f, 90f,  // 右下
-            280f, 10f,  // 右上
+            200f,
+            20f, // 左上
+            220f,
+            80f, // 左下
+            300f,
+            90f, // 右下
+            280f,
+            10f, // 右上
             0xFF00FFFF.toInt(), // シアン
             0xFFFF00FF.toInt(), // マゼンタ
             0xFFFFFF00.toInt(), // イエロー
-            0xFFFFFFFF.toInt()  // 白
+            0xFFFFFFFF.toInt(), // 白
         )
 
         // --- 4. 動的なアニメーションテスト ---

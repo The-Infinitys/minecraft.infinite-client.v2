@@ -90,10 +90,14 @@ class Graphics2D(
     }
 
     fun fillQuad(
-        x0: Float, y0: Float,
-        x1: Float, y1: Float,
-        x2: Float, y2: Float,
-        x3: Float, y3: Float
+        x0: Float,
+        y0: Float,
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float,
+        x3: Float,
+        y3: Float,
     ) {
         fillQuad(x0, y0, x1, y1, x2, y2, x3, y3, fillStyle, fillStyle, fillStyle, fillStyle)
     }
@@ -102,41 +106,81 @@ class Graphics2D(
      * 各頂点に個別の色を指定して四角形を塗りつぶします（グラデーション）。
      */
     fun fillQuad(
-        x0: Float, y0: Float,
-        x1: Float, y1: Float,
-        x2: Float, y2: Float,
-        x3: Float, y3: Float,
-        col0: Int, col1: Int, col2: Int, col3: Int
+        x0: Float,
+        y0: Float,
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float,
+        x3: Float,
+        y3: Float,
+        col0: Int,
+        col1: Int,
+        col2: Int,
+        col3: Int,
     ) {
         commandQueue.add(
             RenderCommand.FillQuadFloat(
-                x0, y0, x1, y1, x2, y2, x3, y3,
-                col0, col1, col2, col3, zIndex
-            )
+                x0,
+                y0,
+                x1,
+                y1,
+                x2,
+                y2,
+                x3,
+                y3,
+                col0,
+                col1,
+                col2,
+                col3,
+                zIndex,
+            ),
         )
     }
 
     fun fillQuad(
-        x0: Double, y0: Double,
-        x1: Double, y1: Double,
-        x2: Double, y2: Double,
-        x3: Double, y3: Double
+        x0: Double,
+        y0: Double,
+        x1: Double,
+        y1: Double,
+        x2: Double,
+        y2: Double,
+        x3: Double,
+        y3: Double,
     ) {
         fillQuad(x0, y0, x1, y1, x2, y2, x3, y3, fillStyle, fillStyle, fillStyle, fillStyle)
     }
 
     fun fillQuad(
-        x0: Double, y0: Double,
-        x1: Double, y1: Double,
-        x2: Double, y2: Double,
-        x3: Double, y3: Double,
-        col0: Int, col1: Int, col2: Int, col3: Int
+        x0: Double,
+        y0: Double,
+        x1: Double,
+        y1: Double,
+        x2: Double,
+        y2: Double,
+        x3: Double,
+        y3: Double,
+        col0: Int,
+        col1: Int,
+        col2: Int,
+        col3: Int,
     ) {
         commandQueue.add(
             RenderCommand.FillQuadDouble(
-                x0, y0, x1, y1, x2, y2, x3, y3,
-                col0, col1, col2, col3, zIndex
-            )
+                x0,
+                y0,
+                x1,
+                y1,
+                x2,
+                y2,
+                x3,
+                y3,
+                col0,
+                col1,
+                col2,
+                col3,
+                zIndex,
+            ),
         )
     }
 
@@ -146,9 +190,12 @@ class Graphics2D(
      * 現在の fillStyle を使用して三角形を塗りつぶします。
      */
     fun fillTriangle(
-        x0: Float, y0: Float,
-        x1: Float, y1: Float,
-        x2: Float, y2: Float
+        x0: Float,
+        y0: Float,
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float,
     ) {
         fillTriangle(x0, y0, x1, y1, x2, y2, fillStyle, fillStyle, fillStyle)
     }
@@ -157,38 +204,67 @@ class Graphics2D(
      * 各頂点に個別の色を指定して三角形を塗りつぶします（グラデーション）。
      */
     fun fillTriangle(
-        x0: Float, y0: Float,
-        x1: Float, y1: Float,
-        x2: Float, y2: Float,
-        col0: Int, col1: Int, col2: Int
+        x0: Float,
+        y0: Float,
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float,
+        col0: Int,
+        col1: Int,
+        col2: Int,
     ) {
         commandQueue.add(
             RenderCommand.FillTriangleFloat(
-                x0, y0, x1, y1, x2, y2,
-                col0, col1, col2, zIndex
-            )
+                x0,
+                y0,
+                x1,
+                y1,
+                x2,
+                y2,
+                col0,
+                col1,
+                col2,
+                zIndex,
+            ),
         )
     }
 
     fun fillTriangle(
-        x0: Double, y0: Double,
-        x1: Double, y1: Double,
-        x2: Double, y2: Double
+        x0: Double,
+        y0: Double,
+        x1: Double,
+        y1: Double,
+        x2: Double,
+        y2: Double,
     ) {
         fillTriangle(x0, y0, x1, y1, x2, y2, fillStyle, fillStyle, fillStyle)
     }
 
     fun fillTriangle(
-        x0: Double, y0: Double,
-        x1: Double, y1: Double,
-        x2: Double, y2: Double,
-        col0: Int, col1: Int, col2: Int
+        x0: Double,
+        y0: Double,
+        x1: Double,
+        y1: Double,
+        x2: Double,
+        y2: Double,
+        col0: Int,
+        col1: Int,
+        col2: Int,
     ) {
         commandQueue.add(
             RenderCommand.FillTriangleDouble(
-                x0, y0, x1, y1, x2, y2,
-                col0, col1, col2, zIndex
-            )
+                x0,
+                y0,
+                x1,
+                y1,
+                x2,
+                y2,
+                col0,
+                col1,
+                col2,
+                zIndex,
+            ),
         )
     }
     // --- Utilities ---

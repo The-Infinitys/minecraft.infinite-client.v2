@@ -10,10 +10,15 @@ import org.joml.Matrix3x2f
  * 3つの頂点とそれぞれの色を指定して三角形を描画します。
  */
 fun GuiGraphics.fillTriangle(
-    x0: Float, y0: Float,
-    x1: Float, y1: Float,
-    x2: Float, y2: Float,
-    col0: Int, col1: Int, col2: Int
+    x0: Float,
+    y0: Float,
+    x1: Float,
+    y1: Float,
+    x2: Float,
+    y2: Float,
+    col0: Int,
+    col1: Int,
+    col2: Int,
 ) {
     val renderPipeline = RenderPipelines.GUI ?: return
     val textureSetup = TextureSetup.noTexture()
@@ -23,11 +28,16 @@ fun GuiGraphics.fillTriangle(
             renderPipeline,
             textureSetup,
             Matrix3x2f(this.pose()),
-            x0, y0,
-            x1, y1,
-            x2, y2,
-            col0, col1, col2,
-            this.scissorStack.peek()
-        )
+            x0,
+            y0,
+            x1,
+            y1,
+            x2,
+            y2,
+            col0,
+            col1,
+            col2,
+            this.scissorStack.peek(),
+        ),
     )
 }
