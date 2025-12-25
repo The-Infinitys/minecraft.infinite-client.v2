@@ -77,7 +77,7 @@ class HelloFeature : LocalFeature() {
         graphics2D.fillTriangle(x0, y0, x1, y1, x2, y2)
 
         // 枠線の追加
-        graphics2D.strokeStyle = StrokeStyle(0xFF000000.toInt(), 2.0f) // 黒い枠線
+        graphics2D.strokeStyle = StrokeStyle(0xFF000000.toInt(), 10.0f) // 黒い枠線
         graphics2D.strokeTriangle(x0, y0, x1, y1, x2, y2)
 
         return graphics2D

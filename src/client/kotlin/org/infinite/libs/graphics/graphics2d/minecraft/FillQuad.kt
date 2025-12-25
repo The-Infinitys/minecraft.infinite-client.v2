@@ -23,7 +23,7 @@ fun GuiGraphics.fillQuad(
     col2: Int,
     col3: Int,
 ) {
-    val renderPipeline = RenderPipelines.GUI ?: return
+    val renderPipeline = RenderPipelines.GUI
     val textureSetup = TextureSetup.noTexture()
 
     this.guiRenderState.submitGuiElement(

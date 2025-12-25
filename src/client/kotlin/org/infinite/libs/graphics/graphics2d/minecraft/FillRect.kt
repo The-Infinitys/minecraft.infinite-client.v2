@@ -26,7 +26,7 @@ fun GuiGraphics.fill(
     color2: Int,
     color3: Int,
 ) {
-    val renderPipeline = RenderPipelines.GUI ?: return
+    val renderPipeline = RenderPipelines.GUI
     val textureSetup = TextureSetup.noTexture()
     this.guiRenderState.submitGuiElement(
         ColoredRectangleRenderState(

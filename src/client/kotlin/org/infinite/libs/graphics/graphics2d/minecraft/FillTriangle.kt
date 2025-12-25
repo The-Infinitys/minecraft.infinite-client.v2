@@ -20,7 +20,7 @@ fun GuiGraphics.fillTriangle(
     col1: Int,
     col2: Int,
 ) {
-    val renderPipeline = RenderPipelines.GUI ?: return
+    val renderPipeline = RenderPipelines.GUI
     val textureSetup = TextureSetup.noTexture()
 
     this.guiRenderState.submitGuiElement(
