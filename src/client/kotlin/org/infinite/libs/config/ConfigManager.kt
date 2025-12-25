@@ -1,24 +1,85 @@
 package org.infinite.libs.config
 
+import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.json.*
 import org.infinite.UltimateClient
 import org.infinite.libs.interfaces.MinecraftInterface
 import org.infinite.libs.log.LogSystem
 import org.infinite.utils.toLowerSnakeCase
-import org.yaml.snakeyaml.DumperOptions
-import org.yaml.snakeyaml.Yaml
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileWriter
 
 object ConfigManager : MinecraftInterface() {
     private val baseDir = File(client?.run { gameDirectory } ?: File("."), "ultimate/config")
 
-    private val yaml: Yaml by lazy {
-        val options = DumperOptions().apply {
-            defaultFlowStyle = DumperOptions.FlowStyle.BLOCK // 読みやすいブロック形式
-            isPrettyFlow = true
+    private val json: Json by lazy {
+        Json {
+            prettyPrint = true
+            isLenient = true
+            encodeDefaults = true
+            ignoreUnknownKeys = true
         }
-        Yaml(options)
+    }
+
+    // カスタムシリアライザー: ネストしたMap<String, Any?>を扱う
+    object GenericMapSerializer : KSerializer<Map<String, Any?>> {
+
+        override val descriptor: SerialDescriptor = buildClassSerialDescriptor("GenericMap")
+
+        override fun serialize(encoder: Encoder, value: Map<String, Any?>) {
+            val jsonObject = JsonObject(value.mapValues { it.value.toJsonElement() })
+            val jsonObjectSerializer = JsonObject.serializer()
+            jsonObjectSerializer.serialize(encoder, jsonObject)
+        }
+
+        override fun deserialize(decoder: Decoder): Map<String, Any?> {
+            val jsonDecoder = decoder as? JsonDecoder ?: throw SerializationException("Can only deserialize Json content to generic Map")
+            val root = jsonDecoder.decodeJsonElement()
+            return if (root is JsonObject) root.toMap() else throw SerializationException("Cannot deserialize Json content to generic Map")
+        }
+
+        private fun Any?.toJsonElement(): JsonElement = when (this) {
+            null -> JsonNull
+            is String -> JsonPrimitive(this)
+            is Number -> JsonPrimitive(this)
+            is Boolean -> JsonPrimitive(this)
+            is Map<*, *> -> toJsonObject()
+            is Iterable<*> -> toJsonArray()
+            else -> throw SerializationException("Cannot serialize value type $this")
+        }
+
+        private fun Map<*, *>.toJsonObject(): JsonObject = JsonObject(
+            this.entries.associate {
+                it.key.toString() to it.value.toJsonElement()
+            },
+        )
+
+        private fun Iterable<*>.toJsonArray(): JsonArray = JsonArray(this.map { it.toJsonElement() })
+
+        private fun JsonElement.toAnyNullableValue(): Any? = when (this) {
+            is JsonPrimitive -> toScalarOrNull()
+            is JsonObject -> toMap()
+            is JsonArray -> toList()
+        }
+
+        private fun JsonObject.toMap(): Map<String, Any?> = entries.associate {
+            when (val jsonElement = it.value) {
+                is JsonPrimitive -> it.key to jsonElement.toScalarOrNull()
+                is JsonObject -> it.key to jsonElement.toMap()
+                is JsonArray -> it.key to jsonElement.toAnyNullableValueList()
+            }
+        }
+
+        private fun JsonPrimitive.toScalarOrNull(): Any? = when {
+            this is JsonNull -> null
+            this.isString -> this.content
+            else -> listOfNotNull(booleanOrNull, longOrNull, doubleOrNull).firstOrNull()
+        }
+
+        private fun JsonArray.toAnyNullableValueList(): List<Any?> = this.map {
+            it.toAnyNullableValue()
+        }
     }
 
     // --- Save ---
@@ -26,8 +87,8 @@ object ConfigManager : MinecraftInterface() {
     fun saveGlobal() {
         LogSystem.info("Global config saving...")
         val data = UltimateClient.globalFeatureCategories.data()
-        save(File(baseDir, "global.yaml"), data)
-        LogSystem.info("Global config saved to global.yaml")
+        save(File(baseDir, "global.json"), data)
+        LogSystem.info("Global config saved to global.json")
     }
 
     fun saveLocal() {
@@ -38,16 +99,15 @@ object ConfigManager : MinecraftInterface() {
             LogSystem.warn("Local config save skipped: path not available.")
             return
         }
-        save(File(baseDir, "local/$path/local.yaml"), data)
-        LogSystem.info("Local config saved to local/$path/local.yaml")
+        save(File(baseDir, "local/$path/local.json"), data)
+        LogSystem.info("Local config saved to local/$path/local.json")
     }
 
     private fun save(file: File, data: Map<String, *>) {
         try {
             if (!file.parentFile.exists()) file.parentFile.mkdirs()
-            FileWriter(file).use { writer ->
-                yaml.dump(data, writer)
-            }
+            val jsonString = json.encodeToString(GenericMapSerializer, data)
+            file.writeText(jsonString)
             LogSystem.info("Successfully saved config to ${file.absolutePath}")
         } catch (e: Exception) {
             LogSystem.error("Failed to save config to ${file.absolutePath}: ${e.message}")
@@ -59,14 +119,14 @@ object ConfigManager : MinecraftInterface() {
 
     fun loadGlobal() {
         LogSystem.info("Loading global config...")
-        val file = File(baseDir, "global.yaml")
+        val file = File(baseDir, "global.json")
         if (!file.exists()) {
-            LogSystem.warn("Global config file global.yaml not found.")
+            LogSystem.warn("Global config file global.json not found.")
             return
         }
         val data = load(file)
         applyData(UltimateClient.globalFeatureCategories, data)
-        LogSystem.info("Global config loaded from global.yaml")
+        LogSystem.info("Global config loaded from global.json")
     }
 
     fun loadLocal() {
@@ -76,22 +136,22 @@ object ConfigManager : MinecraftInterface() {
             LogSystem.warn("Local config load skipped: path not available.")
             return
         }
-        val file = File(baseDir, "local/$path/local.yaml")
+        val file = File(baseDir, "local/$path/local.json")
         if (!file.exists()) {
-            LogSystem.warn("Local config file local/$path/local.yaml not found.")
+            LogSystem.warn("Local config file local/$path/local.json not found.")
             return
         }
         val data = load(file)
         applyData(UltimateClient.localFeatureCategories, data)
-        LogSystem.info("Local config loaded from local/$path/local.yaml")
+        LogSystem.info("Local config loaded from local/$path/local.json")
     }
 
     private fun load(file: File): Map<String, Any?> {
         return try {
-            FileInputStream(file).use { input ->
-                LogSystem.info("Successfully loaded config from ${file.absolutePath}")
-                yaml.load<Map<String, Any?>>(input) ?: emptyMap()
-            }
+            val jsonString = file.readText()
+            val data = json.decodeFromString(GenericMapSerializer, jsonString)
+            LogSystem.info("Successfully loaded config from ${file.absolutePath}")
+            data
         } catch (e: Exception) {
             LogSystem.error("Failed to load config from ${file.absolutePath}: ${e.message}")
             e.printStackTrace()
@@ -122,7 +182,7 @@ object ConfigManager : MinecraftInterface() {
 
                 // Featureを取得
                 val feature = category.features.values.find {
-                    it::class.simpleName?.toLowerSnakeCase() == featureName
+                    it::class.simpleName?.toLowerSnakeCase() == featureName.toString()
                 } ?: return@forEach
 
                 // プロパティをセット
@@ -142,7 +202,7 @@ object ConfigManager : MinecraftInterface() {
             server.storageSource.levelId
         } else {
             val server = client.currentServer ?: return null
-            server.ip
+            server.name
         }
         val prefix = if (isLocalServer) "sp" else "mp"
         return "$prefix/$serverName"

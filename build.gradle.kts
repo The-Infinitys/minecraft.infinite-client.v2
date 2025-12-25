@@ -49,7 +49,6 @@ dependencies {
 //    modImplementation("meteordevelopment:baritone:${property("baritone_version")}")
 //    implementation("org.lwjgl:lwjgl-stb:${property("lwjgl_version")}")
     implementation("com.squareup.okhttp3:okhttp:${property("ok_http_version")}")
-    implementation("org.yaml:snakeyaml:${property("snake_yaml_version")}")
     implementation("org.apache.maven:maven-artifact:${property("maven_artifact_version")}")
 }
 tasks {
