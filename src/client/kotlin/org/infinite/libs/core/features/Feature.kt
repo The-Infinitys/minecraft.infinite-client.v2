@@ -53,9 +53,11 @@ open class Feature : MinecraftInterface() {
         return properties[name]?.value as? T
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun <T> set(name: String, value: T) {
-        val prop = properties[name] as? Property<T>
-        prop?.value = value
+        val prop = properties[name] ?: properties[name.toLowerSnakeCase()] ?: return
+        val p = prop as? Property<T> ?: return
+        p.value = value
     }
 
     private val translationKey: String by lazy {
