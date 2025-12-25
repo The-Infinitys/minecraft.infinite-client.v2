@@ -1,6 +1,7 @@
 package org.infinite.features.local.rendering.hello
 
 import org.infinite.libs.core.features.feature.LocalFeature
+import org.infinite.libs.core.features.property.number.IntProperty
 import org.infinite.libs.graphics.Graphics2D
 import org.infinite.libs.graphics.graphics2d.structs.StrokeStyle
 import org.infinite.libs.log.LogSystem
@@ -8,6 +9,10 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 class HelloFeature : LocalFeature() {
+    init {
+        property("Hello", IntProperty(1, 1, 100))
+    }
+
     override fun onConnected() {
         LogSystem.log("Graphics2D Test Feature Connected!")
     }
