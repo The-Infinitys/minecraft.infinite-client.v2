@@ -9,8 +9,9 @@ import org.infinite.libs.interfaces.MinecraftInterface
 import org.infinite.libs.log.LogSystem
 import org.infinite.utils.toLowerSnakeCase
 import java.io.File
+
 object ConfigManager : MinecraftInterface() {
-    private val baseDir = File(client.run { gameDirectory } ?: File("."), "ultimate/config")
+    private val baseDir = File(client.run { gameDirectory }, "ultimate/config")
 
     private val json: Json by lazy {
         Json {
@@ -33,7 +34,8 @@ object ConfigManager : MinecraftInterface() {
         }
 
         override fun deserialize(decoder: Decoder): Map<String, Any?> {
-            val jsonDecoder = decoder as? JsonDecoder ?: throw SerializationException("Can only deserialize Json content to generic Map")
+            val jsonDecoder = decoder as? JsonDecoder
+                ?: throw SerializationException("Can only deserialize Json content to generic Map")
             val root = jsonDecoder.decodeJsonElement()
             return if (root is JsonObject) root.toMap() else throw SerializationException("Cannot deserialize Json content to generic Map")
         }
