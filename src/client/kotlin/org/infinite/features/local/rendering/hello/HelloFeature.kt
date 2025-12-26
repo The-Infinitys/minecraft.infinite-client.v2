@@ -4,6 +4,7 @@ import org.infinite.libs.core.features.feature.LocalFeature
 import org.infinite.libs.core.features.property.number.IntProperty
 import org.infinite.libs.graphics.Graphics2D
 import org.infinite.libs.graphics.graphics2d.structs.StrokeStyle
+import org.infinite.libs.graphics.graphics2d.structs.TextStyle
 import org.infinite.libs.log.LogSystem
 import kotlin.math.cos
 import kotlin.math.sin
@@ -210,7 +211,9 @@ class HelloFeature : LocalFeature() {
 
         graphics2D.strokePath()
         graphics2D.restore()
-
+        graphics2D.textStyle = TextStyle(false)
+        graphics2D.fillStyle = 0xFFFFFFFF.toInt()
+        graphics2D.text("Hello, World", graphics2D.width / 2f, graphics2D.height / 2f)
         return graphics2D
     }
 }

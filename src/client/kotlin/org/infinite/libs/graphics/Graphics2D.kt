@@ -6,6 +6,7 @@ import org.infinite.libs.graphics.graphics2d.Graphics2DPrimitivesStroke
 import org.infinite.libs.graphics.graphics2d.Graphics2DTransformations
 import org.infinite.libs.graphics.graphics2d.structs.RenderCommand
 import org.infinite.libs.graphics.graphics2d.structs.StrokeStyle
+import org.infinite.libs.graphics.graphics2d.structs.TextStyle
 import org.infinite.libs.graphics.graphics2d.system.Path2D
 import org.infinite.libs.interfaces.MinecraftInterface
 import org.joml.Matrix3x2f
@@ -24,6 +25,7 @@ class Graphics2D(
     val height: Int = client?.window?.guiScaledHeight ?: 150
     var strokeStyle: StrokeStyle? = null
     var fillStyle: Int = 0xFFFFFFFF.toInt()
+    var textStyle: TextStyle = TextStyle()
     var enablePathGradient: Boolean = false // New property for gradient control
 
     // zIndexによるソートが不要なため、単純なFIFOキューに変更
@@ -41,7 +43,8 @@ class Graphics2D(
 
     // 新しい描画および変換機能のインスタンス
     private val fillOperations: Graphics2DPrimitivesFill = Graphics2DPrimitivesFill(commandQueue) { fillStyle }
-    private val strokeOperations: Graphics2DPrimitivesStroke = Graphics2DPrimitivesStroke(commandQueue, { strokeStyle }, { enablePathGradient })
+    private val strokeOperations: Graphics2DPrimitivesStroke =
+        Graphics2DPrimitivesStroke(commandQueue, { strokeStyle }, { enablePathGradient })
     private val transformations: Graphics2DTransformations = Graphics2DTransformations(transformMatrix, transformStack)
 
     // --- fillRect ---
@@ -221,6 +224,12 @@ class Graphics2D(
      */
     fun restore() {
         transformations.restore()
+    }
+
+    fun text(text: String, x: Float, y: Float) {
+        val shadow = textStyle.shadow
+        val font = client?.font ?: return
+        commandQueue.add(RenderCommand.Text(font, text, x, y, fillStyle, shadow))
     }
 
     /**

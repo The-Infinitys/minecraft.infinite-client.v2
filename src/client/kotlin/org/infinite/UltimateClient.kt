@@ -10,6 +10,7 @@ import org.infinite.libs.core.features.categories.GlobalFeatureCategories
 import org.infinite.libs.core.features.categories.LocalFeatureCategories
 import org.infinite.libs.core.tick.WorldTicks
 import org.infinite.libs.log.LogSystem
+import org.infinite.libs.translation.TranslationChecker
 
 object UltimateClient : ClientModInitializer {
     val globalFeatureCategories = GlobalFeatureCategories(listOf())
@@ -22,7 +23,7 @@ object UltimateClient : ClientModInitializer {
         // 1. グローバル設定のロード
         ConfigManager.loadGlobal()
         globalFeatureCategories.onInitialized()
-
+        TranslationChecker.register()
         // --- Server Connection Events ---
 
         // サーバー接続時 (ログイン成功後)

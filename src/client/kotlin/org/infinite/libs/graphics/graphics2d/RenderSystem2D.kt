@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics
 import org.infinite.libs.graphics.graphics2d.structs.RenderCommand
 import org.infinite.libs.graphics.graphics2d.system.QuadRenderer
 import org.infinite.libs.graphics.graphics2d.system.RectRenderer
+import org.infinite.libs.graphics.graphics2d.system.TextRenderer
 import org.infinite.libs.graphics.graphics2d.system.TriangleRenderer
 
 class RenderSystem2D(
@@ -12,7 +13,7 @@ class RenderSystem2D(
     private val rectRenderer: RectRenderer = RectRenderer(gui)
     private val quadRenderer: QuadRenderer = QuadRenderer(gui)
     private val triangleRenderer: TriangleRenderer = TriangleRenderer(gui)
-
+    private val textRenderer: TextRenderer = TextRenderer(gui)
     fun render(commands: List<RenderCommand>) {
         commands.forEach { executeCommand(it) }
     }
@@ -78,6 +79,10 @@ class RenderSystem2D(
                         command.col0, command.col1, command.col2,
                     )
                 }
+            }
+
+            is RenderCommand.Text -> {
+                textRenderer.text(command.font, command.text, command.x, command.y, command.color, command.shadow)
             }
         }
     }
