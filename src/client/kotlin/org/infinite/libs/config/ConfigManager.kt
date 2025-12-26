@@ -9,9 +9,8 @@ import org.infinite.libs.interfaces.MinecraftInterface
 import org.infinite.libs.log.LogSystem
 import org.infinite.utils.toLowerSnakeCase
 import java.io.File
-
 object ConfigManager : MinecraftInterface() {
-    private val baseDir = File(client?.run { gameDirectory } ?: File("."), "ultimate/config")
+    private val baseDir = File(client.run { gameDirectory } ?: File("."), "ultimate/config")
 
     private val json: Json by lazy {
         Json {
@@ -195,7 +194,6 @@ object ConfigManager : MinecraftInterface() {
     }
 
     private fun getLocalPath(): String? {
-        val client = client ?: return null
         val isLocalServer = client.isLocalServer
         val serverName = if (isLocalServer) {
             val server = client.singleplayerServer ?: return null
