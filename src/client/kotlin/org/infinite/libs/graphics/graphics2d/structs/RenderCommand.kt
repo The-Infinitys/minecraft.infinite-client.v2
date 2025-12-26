@@ -53,4 +53,13 @@ sealed interface RenderCommand {
         val shadow: Boolean,
         val size: Float,
     ) : RenderCommand
+    data class TextCentered(
+        val font: Font,
+        val text: String,
+        val x: Float,
+        val y: Float,
+        val color: Int,
+        val shadow: Boolean,
+        val size: Float,
+    ) : RenderCommand
 }

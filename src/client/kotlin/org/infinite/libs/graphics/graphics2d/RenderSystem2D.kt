@@ -92,6 +92,17 @@ class RenderSystem2D(
                     command.shadow,
                 )
             }
+            is RenderCommand.TextCentered -> {
+                textRenderer.textCentered(
+                    command.font,
+                    command.text,
+                    command.x,
+                    command.y,
+                    command.color,
+                    command.size,
+                    command.shadow,
+                )
+            }
         }
     }
 

@@ -233,6 +233,13 @@ class Graphics2D(
         commandQueue.add(RenderCommand.Text(font, text, x, y, fillStyle, shadow, size))
     }
 
+    fun textCentered(text: String, x: Float, y: Float) {
+        val shadow = textStyle.shadow
+        val size = textStyle.size
+        val font = client.font
+        commandQueue.add(RenderCommand.TextCentered(font, text, x, y, fillStyle, shadow, size))
+    }
+
     /**
      * 登録された順にコマンドを取り出します
      */

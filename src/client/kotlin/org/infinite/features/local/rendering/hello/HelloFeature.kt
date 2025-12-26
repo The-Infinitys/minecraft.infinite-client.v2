@@ -211,9 +211,9 @@ class HelloFeature : LocalFeature() {
 
         graphics2D.strokePath()
         graphics2D.restore()
-        graphics2D.textStyle = TextStyle(false, 8f)
+        graphics2D.textStyle = TextStyle(false, 80f)
         graphics2D.fillStyle = 0xFFFFFFFF.toInt()
-        graphics2D.text("Hello, World", graphics2D.width / 2f + deltaDisplayX, graphics2D.height / 2f)
+        graphics2D.textCentered("Hello, World", graphics2D.width / 2f, graphics2D.height / 2f)
         return graphics2D
     }
 }
