@@ -10,7 +10,6 @@ import org.infinite.UltimateClient
 import org.infinite.libs.core.features.categories.category.LocalCategory
 import org.infinite.libs.graphics.bundle.Graphics2DRenderer
 import org.infinite.libs.ui.screen.GameScreen
-import org.infinite.utils.alpha
 
 class LocalCategoryWidget(
     x: Int,
@@ -44,19 +43,11 @@ class LocalCategoryWidget(
         val x = (screenWidth - width) / 2f
         val y = (screenHeight - height) / 2f
 
-        val backgroundColor = theme.colorScheme.backgroundColor
         val foregroundColor = theme.colorScheme.foregroundColor
-        // アニメーションさせたアルファ値を適用 (255 * animatedAlpha)
-        graphics2DRenderer.fillStyle = backgroundColor.alpha((255 * animatedAlpha).toInt())
-        graphics2DRenderer.fillRect(
-            x,
-            y,
-            width,
-            height,
-        )
-        graphics2DRenderer.fillStyle = foregroundColor.alpha((255 * animatedAlpha).toInt())
+        theme.renderBackGround(x, y, width, height, graphics2DRenderer, animatedAlpha)
+        graphics2DRenderer.fillStyle = foregroundColor
         graphics2DRenderer.textCentered(this.message.string, screenWidth / 2f, screenHeight / 2f)
-        graphics2DRenderer.render()
+        graphics2DRenderer.flush()
     }
 
     override fun updateWidgetNarration(narrationElementOutput: NarrationElementOutput) {

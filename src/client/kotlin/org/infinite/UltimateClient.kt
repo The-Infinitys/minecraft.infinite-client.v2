@@ -18,7 +18,8 @@ import org.infinite.libs.ui.theme.Theme
 import org.infinite.libs.ui.theme.ThemeManager
 import org.infinite.ultimate.UltimateGlobalFeatures
 import org.infinite.ultimate.UltimateLocalFeatures
-import org.infinite.ultimate.theme.DefaultTheme
+import org.infinite.ultimate.theme.default.DefaultTheme
+import org.infinite.ultimate.theme.infinite.InfiniteTheme
 import org.lwjgl.glfw.GLFW
 
 object UltimateClient : MinecraftInterface(), ClientModInitializer {
@@ -47,7 +48,7 @@ object UltimateClient : MinecraftInterface(), ClientModInitializer {
 
     override fun onInitializeClient() {
         LogSystem.init()
-
+        themeManager.register(InfiniteTheme())
         // 1. グローバル設定のロード
         ConfigManager.loadGlobal()
         globalFeatures.onInitialized()

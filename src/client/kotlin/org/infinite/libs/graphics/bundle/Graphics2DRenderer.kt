@@ -7,7 +7,7 @@ import org.infinite.libs.graphics.graphics2d.RenderSystem2D
 
 class Graphics2DRenderer(guiGraphics: GuiGraphics, deltaTracker: DeltaTracker) : Graphics2D(deltaTracker) {
     private val renderSystem2D = RenderSystem2D(guiGraphics)
-    fun render() {
+    fun flush() {
         renderSystem2D.render(commands())
     }
 }
