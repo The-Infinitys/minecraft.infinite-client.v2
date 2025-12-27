@@ -80,5 +80,13 @@ abstract class LocalCategory : Category<KClass<out LocalFeature>, LocalFeature>(
         result
     }
 
+    fun registerAllActions(): List<LocalFeature.BindingPair> {
+        val result = mutableListOf<LocalFeature.BindingPair>()
+        enabledFeatures().forEach {
+            result.addAll(it.registerAllActions())
+        }
+        return result.toList()
+    }
+
     private data class InternalCommandWrapper(val priority: Int, val commands: List<RenderCommand>)
 }

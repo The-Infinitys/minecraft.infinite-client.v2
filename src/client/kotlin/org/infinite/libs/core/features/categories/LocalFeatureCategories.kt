@@ -6,6 +6,7 @@ import org.infinite.libs.core.features.FeatureCategories
 import org.infinite.libs.core.features.categories.category.LocalCategory
 import org.infinite.libs.core.features.feature.LocalFeature
 import org.infinite.libs.graphics.graphics2d.structs.RenderCommand
+import org.infinite.libs.translation.TranslationChecker
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -88,5 +89,27 @@ abstract class LocalFeatureCategories : FeatureCategories<
             finalCommands.addAll(commandsInPriority)
         }
         finalCommands
+    }
+
+    lateinit var keybindingPairs: List<LocalFeature.BindingPair>
+    fun registerAllActions() {
+        val result = mutableListOf<LocalFeature.BindingPair>()
+        categories.values.forEach {
+            result.addAll(it.registerAllActions())
+        }
+        result.forEach { TranslationChecker.add(it.mapping.name) }
+        keybindingPairs = result.toList()
+    }
+
+    fun keyBindingActions() {
+        if (!::keybindingPairs.isInitialized) {
+            return
+        }
+        if (keybindingPairs.isEmpty()) return
+        keybindingPairs.forEach { pair ->
+            while (pair.mapping.consumeClick()) {
+                pair.action()
+            }
+        }
     }
 }

@@ -80,11 +80,15 @@ open class Feature : MinecraftInterface() {
 
     // --- 以下、既存ロジックの調整 ---
 
-    fun translation(name: String? = null): String? {
-        if (name == null) return translationKey
+    fun translation(name: String): String? {
         ensureAllPropertiesRegistered()
         val key = _properties.keys.find { it.equals(name, ignoreCase = true) }
         return key?.let { "$translationKey.${it.toLowerSnakeCase()}" }
+    }
+
+    fun translation(): String {
+        ensureAllPropertiesRegistered()
+        return translationKey
     }
 
     val translations: List<String>

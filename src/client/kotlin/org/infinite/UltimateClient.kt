@@ -32,8 +32,7 @@ object UltimateClient : ClientModInitializer {
         ConfigManager.loadGlobal()
         globalFeatures.onInitialized()
         TranslationChecker.register()
-        // --- Server Connection Events ---
-
+        localFeatures.registerAllActions()
         // サーバー接続時 (ログイン成功後)
         ClientPlayConnectionEvents.JOIN.register { _, _, _ ->
             // 2. ローカル設定（サーバー/ワールド別）のロード
