@@ -3,6 +3,8 @@ package org.infinite.libs.graphics
 import net.minecraft.client.DeltaTracker
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.phys.Vec3
+import org.infinite.libs.core.tick.RenderTicks
 import org.infinite.libs.graphics.graphics2d.Graphics2DPrimitivesFill
 import org.infinite.libs.graphics.graphics2d.Graphics2DPrimitivesStroke
 import org.infinite.libs.graphics.graphics2d.Graphics2DPrimitivesTexture
@@ -13,6 +15,7 @@ import org.infinite.libs.graphics.graphics2d.structs.TextStyle
 import org.infinite.libs.graphics.graphics2d.system.Path2D
 import org.infinite.libs.interfaces.MinecraftInterface
 import org.joml.Matrix3x2f
+import org.joml.Matrix4f
 import java.util.*
 
 /**
@@ -319,6 +322,33 @@ open class Graphics2D(
             textureHeight,
             color,
         )
+    }
+
+    fun projectWorldToScreen(worldPos: Vec3): Pair<Double, Double>? {
+        val data = RenderTicks.latestProjectionData ?: return null
+
+        val relX = (worldPos.x - data.cameraPos.x).toFloat()
+        val relY = (worldPos.y - data.cameraPos.y).toFloat()
+        val relZ = (worldPos.z - data.cameraPos.z).toFloat()
+
+        val targetVector = org.joml.Vector4f(relX, relY, relZ, 1.0f)
+
+        // ViewProjection行列の合成
+        val viewProjectionMatrix = Matrix4f(data.projectionMatrix).mul(data.modelViewMatrix)
+        targetVector.mul(viewProjectionMatrix)
+
+        val w = targetVector.w
+        if (w <= 0.05f) return null
+
+        val ndcX = targetVector.x / w
+        val ndcY = targetVector.y / w
+
+        if (ndcX < -1.0f || ndcX > 1.0f || ndcY < -1.0f || ndcY > 1.0f) return null
+
+        val x = (ndcX + 1.0) * 0.5 * data.scaledWidth
+        val y = (1.0 - ndcY) * 0.5 * data.scaledHeight
+
+        return x to y
     }
 
     /**

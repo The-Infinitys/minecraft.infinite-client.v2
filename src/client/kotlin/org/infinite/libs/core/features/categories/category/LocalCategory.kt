@@ -5,7 +5,9 @@ import net.minecraft.client.DeltaTracker
 import org.infinite.libs.core.features.Category
 import org.infinite.libs.core.features.feature.LocalFeature
 import org.infinite.libs.graphics.Graphics2D
+import org.infinite.libs.graphics.Graphics3D
 import org.infinite.libs.graphics.graphics2d.structs.RenderCommand2D
+import org.infinite.libs.graphics.graphics3d.structs.RenderCommand3D
 import java.util.*
 import java.util.concurrent.PriorityBlockingQueue
 import kotlin.reflect.KClass
@@ -49,11 +51,17 @@ abstract class LocalCategory : Category<KClass<out LocalFeature>, LocalFeature>(
             feature.renderPriority.end
         }
     }
-    open suspend fun onLevelRendering(deltaTracker: DeltaTracker): LinkedList<Pair<Int, List<RenderCommand2D>>> {
-        return collectAndGroupRenderCommands(deltaTracker) { feature, graphics ->
-            feature.onStartUiRendering(graphics)
-            feature.renderPriority.start
+    open suspend fun onLevelRendering(): List<RenderCommand3D> = coroutineScope {
+        // 有効な Feature ごとに並列でコマンドを生成
+        val deferredCommands = enabledFeatures().map { feature ->
+            async(Dispatchers.Default) {
+                val graphics3D = Graphics3D()
+                feature.onLevelRendering(graphics3D)
+                graphics3D.commands()
+            }
         }
+        // 全ての Feature からの結果を待ち、一つのリストに統合して返す
+        deferredCommands.awaitAll().flatten()
     }
 
     private suspend fun collectAndGroupRenderCommands(

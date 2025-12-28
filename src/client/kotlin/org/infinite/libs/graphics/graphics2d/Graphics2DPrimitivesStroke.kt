@@ -230,13 +230,6 @@ class Graphics2DPrimitivesStroke(
     fun strokePolyline(segments: List<PathSegment>) {
         if (segments.isEmpty()) return
 
-        // --- デバッグログ出力 ---
-        val logSb = StringBuilder("StrokePolyline Trace:\n")
-        segments.forEachIndexed { i, seg ->
-            logSb.append("  Seg[$i]: (${seg.x1}, ${seg.y1}) -> (${seg.x2}, ${seg.y2}) | Color: ${Integer.toHexString(seg.style.color)} | Width: ${seg.style.width}\n")
-        }
-        org.infinite.libs.log.LogSystem.log(logSb.toString())
-
         // 1. 頂点リストの構築
         val polylineVerticesWithStyles = mutableListOf<Triple<Float, Float, StrokeStyle>>()
         polylineVerticesWithStyles.add(Triple(segments.first().x1, segments.first().y1, segments.first().style))

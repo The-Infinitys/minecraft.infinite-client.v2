@@ -9,6 +9,7 @@
     "graphics.FontMixin",
     "graphics.GuiGraphicsAccessor",
     "graphics.GuiGraphicsMixin",
+    "graphics.LevelRendererMixin",
     "graphics.MinecraftAccessor",
     "graphics.MinecraftMixin",
     "graphics.UiMixin"

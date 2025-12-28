@@ -1,12 +1,28 @@
 package org.infinite.libs.core.tick
 
+import com.mojang.blaze3d.buffers.GpuBufferSlice
+import com.mojang.blaze3d.resource.GraphicsResourceAllocator
 import kotlinx.coroutines.runBlocking
+import net.minecraft.client.Camera
 import net.minecraft.client.DeltaTracker
 import net.minecraft.client.gui.GuiGraphics
 import org.infinite.InfiniteClient
 import org.infinite.libs.graphics.graphics2d.RenderSystem2D
+import org.infinite.libs.graphics.graphics3d.RenderSystem3D
+import org.infinite.libs.graphics.system.ProjectionData
+import org.infinite.libs.log.LogSystem
+import org.joml.Matrix4f
+import org.joml.Vector4f
 
 object RenderTicks {
+    @Volatile
+    private var _latestProjectionData: ProjectionData? = null
+    val latestProjectionData: ProjectionData? get() = _latestProjectionData
+
+    @Volatile
+    private var _renderSnapShot: RenderSystem3D.RenderSnapshot? = null
+    val renderSnapShot: RenderSystem3D.RenderSnapshot? get() = _renderSnapShot
+
     fun onStartUiRendering(
         guiGraphics: GuiGraphics,
         deltaTracker: DeltaTracker,
@@ -31,7 +47,55 @@ object RenderTicks {
         renderSystem2D.render(commands)
     }
 
-    fun onStartWorldRendering() {}
+    private fun updateProjectionData(
+        camera: Camera,
+        positionMatrix: Matrix4f,
+        projectionMatrix: Matrix4f,
+    ) {
+        val client = net.minecraft.client.Minecraft.getInstance()
+        _latestProjectionData = ProjectionData(
+            cameraPos = camera.position(),
+            modelViewMatrix = Matrix4f(positionMatrix),
+            projectionMatrix = Matrix4f(projectionMatrix),
+            scaledWidth = client.window.guiScaledWidth,
+            scaledHeight = client.window.guiScaledHeight,
+        )
+    }
 
-    fun onEndWorldRendering() {}
+    fun onLevelRendering(
+        graphicsResourceAllocator: GraphicsResourceAllocator,
+        deltaTracker: DeltaTracker,
+        renderBlockOutline: Boolean,
+        camera: Camera,
+        positionMatrix: Matrix4f,
+        projectionMatrix: Matrix4f,
+        frustumMatrix: Matrix4f,
+        gpuBufferSlice: GpuBufferSlice,
+        vector4f: Vector4f,
+        bl2: Boolean,
+    ) {
+        updateProjectionData(
+            camera,
+            positionMatrix,
+            projectionMatrix,
+        )
+        val renderSystem3D = RenderSystem3D(
+            graphicsResourceAllocator,
+            deltaTracker,
+            renderBlockOutline,
+            camera,
+            positionMatrix,
+            projectionMatrix,
+            frustumMatrix,
+            gpuBufferSlice,
+            vector4f, bl2,
+        )
+        _renderSnapShot = renderSystem3D.snapShot()
+        val commands =
+            runBlocking {
+                return@runBlocking InfiniteClient.localFeatures.onLevelRendering()
+            }
+        LogSystem.log("onLevelRendering: total(${commands.size})")
+        renderSystem3D.render(commands)
+    }
 }

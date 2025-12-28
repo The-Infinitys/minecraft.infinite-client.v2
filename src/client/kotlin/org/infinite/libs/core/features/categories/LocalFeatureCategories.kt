@@ -1,12 +1,22 @@
 package org.infinite.libs.core.features.categories
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.minecraft.client.DeltaTracker
 import org.infinite.InfiniteClient
 import org.infinite.libs.core.features.FeatureCategories
 import org.infinite.libs.core.features.categories.category.LocalCategory
 import org.infinite.libs.core.features.feature.LocalFeature
 import org.infinite.libs.graphics.graphics2d.structs.RenderCommand2D
+import org.infinite.libs.graphics.graphics3d.structs.RenderCommand3D
 import org.infinite.libs.translation.TranslationChecker
 import java.util.*
 import kotlin.reflect.KClass
@@ -115,5 +125,17 @@ abstract class LocalFeatureCategories : FeatureCategories<
                 pair.action()
             }
         }
+    }
+
+    suspend fun onLevelRendering(): List<RenderCommand3D> = coroutineScope {
+        // 1. 各カテゴリーから並列にコマンドを回収
+        val deferredResults = categories.values.map { category ->
+            async(Dispatchers.Default) {
+                category.onLevelRendering()
+            }
+        }
+
+        // 2. 全ての結果を待機し、一つのリストに統合
+        deferredResults.awaitAll().flatten()
     }
 }
