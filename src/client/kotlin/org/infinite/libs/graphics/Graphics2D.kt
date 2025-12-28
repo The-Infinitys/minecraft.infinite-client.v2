@@ -24,8 +24,8 @@ open class Graphics2D(
 ) : MinecraftInterface() {
     val gameDelta: Float = deltaTracker.gameTimeDeltaTicks
     val realDelta: Float = deltaTracker.realtimeDeltaTicks // Corrected typo here
-    val width: Int = client.window.guiScaledWidth
-    val height: Int = client.window.guiScaledHeight
+    val width: Int = minecraft.window.guiScaledWidth
+    val height: Int = minecraft.window.guiScaledHeight
     var strokeStyle: StrokeStyle? = null
     var fillStyle: Int = 0xFFFFFFFF.toInt()
     var textStyle: TextStyle = TextStyle()
@@ -34,7 +34,7 @@ open class Graphics2D(
     private val commandQueue = LinkedList<RenderCommand2D>()
 
     // Path2Dのインスタンスを追加
-    private val path2D = Path2D(commandQueue)
+    private val path2D = Path2D()
 
     // 変換行列
     private val transformMatrix = Matrix3x2f()
@@ -48,7 +48,7 @@ open class Graphics2D(
         Graphics2DPrimitivesStroke(commandQueue, { strokeStyle }, { enablePathGradient })
     private val transformations: Graphics2DTransformations = Graphics2DTransformations(transformMatrix, transformStack)
     private val textureOperations: Graphics2DPrimitivesTexture =
-        Graphics2DPrimitivesTexture(commandQueue) { transformMatrix }
+        Graphics2DPrimitivesTexture(commandQueue) { textStyle }
     // --- fillRect ---
 
     fun fillRect(x: Float, y: Float, width: Float, height: Float) {
@@ -204,6 +204,24 @@ open class Graphics2D(
         transformations.save()
     }
 
+    fun rotate(angle: Float) {
+        transformations.rotate(angle)
+        pushTransformCommand()
+    }
+
+    /**
+     * 指定した角度（度数法）で回転させます。
+     */
+    fun rotateDegrees(degrees: Float) {
+        rotate(Math.toRadians(degrees.toDouble()).toFloat())
+    }
+
+    fun rotateAt(angle: Float, px: Float, py: Float) {
+        translate(px, py)
+        rotate(angle)
+        translate(-px, -py)
+    }
+
     fun text(text: String, x: Float, y: Float) {
         val shadow = textStyle.shadow
         val size = textStyle.size
@@ -233,6 +251,24 @@ open class Graphics2D(
         pushTransformCommand()
     }
 
+    // --- スケーリング ---
+    fun scale(x: Float, y: Float) {
+        transformations.scale(x, y) // Graphics2DTransformations側で transformMatrix.scale(x, y)
+        pushTransformCommand()
+    }
+
+    // --- 行列の直接セット（上書き） ---
+    fun setTransform(m00: Float, m10: Float, m01: Float, m11: Float, m02: Float, m12: Float) {
+        transformations.setTransform(m00, m10, m01, m11, m02, m12)
+        pushTransformCommand()
+    }
+
+    // --- リセット ---
+    fun resetTransform() {
+        transformations.resetTransform() // transformMatrix.identity()
+        pushTransformCommand()
+    }
+
     fun restore() {
         transformations.restore()
         pushTransformCommand() // 復元後も行列状態を同期
@@ -247,11 +283,15 @@ open class Graphics2D(
         commandQueue.add(RenderCommand2D.DisableScissor)
     }
 
-    fun drawItem(stack: ItemStack, x: Float, y: Float, size: Float = 16f) {
+    fun item(stack: ItemStack, x: Float, y: Float, size: Float = 16f) {
         textureOperations.drawItem(stack, x, y, size)
     }
 
-    fun drawTexture(
+    fun itemCentered(stack: ItemStack, x: Float, y: Float, size: Float) {
+        textureOperations.drawItem(stack, x - size / 2, y - size / 2, size)
+    }
+
+    fun image(
         identifier: Identifier,
         x: Float,
         y: Float,

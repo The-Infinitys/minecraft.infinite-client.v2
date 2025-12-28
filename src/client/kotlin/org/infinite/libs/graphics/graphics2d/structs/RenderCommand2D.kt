@@ -12,9 +12,9 @@ sealed interface RenderCommand2D {
         val width: Float,
         val height: Float,
         val col0: Int, // 左上
-        val col1: Int, // 右上
-        val col2: Int, // 右下
-        val col3: Int, // 左下
+        val col1: Int = col0, // 右上
+        val col2: Int = col0, // 右下
+        val col3: Int = col0, // 左下
     ) : RenderCommand2D
 
     // 四角形の塗りつぶし
@@ -28,9 +28,9 @@ sealed interface RenderCommand2D {
         val x3: Float,
         val y3: Float,
         val col0: Int,
-        val col1: Int,
-        val col2: Int,
-        val col3: Int,
+        val col1: Int = col0,
+        val col2: Int = col0,
+        val col3: Int = col0,
     ) : RenderCommand2D
 
     // 三角形の塗りつぶし
@@ -42,8 +42,8 @@ sealed interface RenderCommand2D {
         val x2: Float,
         val y2: Float,
         val col0: Int,
-        val col1: Int,
-        val col2: Int,
+        val col1: Int = col0,
+        val col2: Int = col0,
     ) : RenderCommand2D
 
     data class Text(
@@ -55,6 +55,7 @@ sealed interface RenderCommand2D {
         val shadow: Boolean,
         val size: Float,
     ) : RenderCommand2D
+
     data class TextCentered(
         val font: String,
         val text: String,
@@ -64,6 +65,7 @@ sealed interface RenderCommand2D {
         val shadow: Boolean,
         val size: Float,
     ) : RenderCommand2D
+
     data class SetTransform(val matrix: Matrix3x2f) : RenderCommand2D
     data class EnableScissor(val x: Int, val y: Int, val width: Int, val height: Int) : RenderCommand2D
     object DisableScissor : RenderCommand2D
@@ -94,5 +96,6 @@ sealed interface RenderCommand2D {
         val x: Float,
         val y: Float,
         val scale: Float,
+        val alpha: Float,
     ) : RenderCommand2D
 }

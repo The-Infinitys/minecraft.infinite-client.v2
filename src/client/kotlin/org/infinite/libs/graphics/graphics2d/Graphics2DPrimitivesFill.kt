@@ -11,11 +11,11 @@ class Graphics2DPrimitivesFill(
     private val fillStyle: Int get() = getFillStyle()
 
     fun fillRect(x: Float, y: Float, width: Float, height: Float) {
-        commandQueue.add(RenderCommand2D.FillRect(x, y, width, height, fillStyle, fillStyle, fillStyle, fillStyle))
+        commandQueue.add(RenderCommand2D.FillRect(x, y, width, height, fillStyle))
     }
 
     fun fillQuad(x0: Float, y0: Float, x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float) {
-        fillQuad(x0, y0, x1, y1, x2, y2, x3, y3, fillStyle, fillStyle, fillStyle, fillStyle)
+        commandQueue.add(RenderCommand2D.FillQuad(x0, y0, x1, y1, x2, y2, x3, y3, fillStyle))
     }
 
     fun fillQuad(

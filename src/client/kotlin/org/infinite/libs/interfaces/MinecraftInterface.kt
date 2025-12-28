@@ -5,10 +5,10 @@ import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.player.LocalPlayer
 
 open class MinecraftInterface {
-    protected val client: Minecraft
+    protected val minecraft: Minecraft
         get() = Minecraft.getInstance()
     protected val player: LocalPlayer?
-        get() = client.player
+        get() = minecraft.player
     protected val level: ClientLevel?
-        get() = client.level
+        get() = minecraft.level
 }

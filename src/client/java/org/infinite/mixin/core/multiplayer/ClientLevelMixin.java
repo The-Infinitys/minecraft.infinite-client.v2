@@ -9,14 +9,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientLevel.class)
-@SuppressWarnings("Unused")
 public class ClientLevelMixin {
   @Inject(at = @At("HEAD"), method = "tick")
+  @SuppressWarnings("Unused")
   private void onStartTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
     InfiniteClient.INSTANCE.getWorldTicks().onStartTick();
   }
 
   @Inject(at = @At("TAIL"), method = "tick")
+  @SuppressWarnings("Unused")
   private void onEndTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
     InfiniteClient.INSTANCE.getWorldTicks().onEndTick();
   }

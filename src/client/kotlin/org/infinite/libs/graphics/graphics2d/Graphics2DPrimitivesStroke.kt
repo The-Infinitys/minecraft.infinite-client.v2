@@ -5,6 +5,7 @@ import org.infinite.libs.graphics.graphics2d.structs.StrokeStyle
 import org.infinite.libs.graphics.graphics2d.system.PathSegment
 import org.infinite.libs.graphics.graphics2d.system.PointPair
 import java.util.LinkedList
+import kotlin.math.sqrt
 
 class Graphics2DPrimitivesStroke(
     private val commandQueue: LinkedList<RenderCommand2D>,
@@ -229,14 +230,18 @@ class Graphics2DPrimitivesStroke(
     fun strokePolyline(segments: List<PathSegment>) {
         if (segments.isEmpty()) return
 
+        // --- デバッグログ出力 ---
+        val logSb = StringBuilder("StrokePolyline Trace:\n")
+        segments.forEachIndexed { i, seg ->
+            logSb.append("  Seg[$i]: (${seg.x1}, ${seg.y1}) -> (${seg.x2}, ${seg.y2}) | Color: ${Integer.toHexString(seg.style.color)} | Width: ${seg.style.width}\n")
+        }
+        org.infinite.libs.log.LogSystem.log(logSb.toString())
+
+        // 1. 頂点リストの構築
         val polylineVerticesWithStyles = mutableListOf<Triple<Float, Float, StrokeStyle>>()
-        if (segments.isNotEmpty()) {
-            polylineVerticesWithStyles.add(Triple(segments.first().x1, segments.first().y1, segments.first().style))
-            for (segment in segments) {
-                polylineVerticesWithStyles.add(Triple(segment.x2, segment.y2, segment.style))
-            }
-        } else {
-            return // No segments to draw
+        polylineVerticesWithStyles.add(Triple(segments.first().x1, segments.first().y1, segments.first().style))
+        for (segment in segments) {
+            polylineVerticesWithStyles.add(Triple(segment.x2, segment.y2, segment.style))
         }
 
         val isClosed = segments.size > 1 &&
@@ -245,95 +250,85 @@ class Graphics2DPrimitivesStroke(
 
         val miteredPoints = mutableListOf<PointPair>()
 
+        // 2. Miter座標（角の広がり）の計算
         for (j in 0 until polylineVerticesWithStyles.size) {
             val currV = polylineVerticesWithStyles[j]
             val currX = currV.first
             val currY = currV.second
-            val currSegmentStyle = currV.third // The style of the segment *starting* at this vertex
+            val currStyle = currV.third
 
-            val prevX: Float
-            val prevY: Float
-            val nextX: Float
-            val nextY: Float
-            val halfWidthForMiter: Float
-
+            val miter: PointPair
             if (isClosed) {
-                val prevVIndex = if (j == 0) polylineVerticesWithStyles.size - 2 else j - 1
-                val nextVIndex = if (j == polylineVerticesWithStyles.size - 1) 1 else j + 1
+                val prevIdx = if (j == 0) polylineVerticesWithStyles.size - 2 else j - 1
+                val nextIdx = if (j == polylineVerticesWithStyles.size - 1) 1 else j + 1
+                val hw = (polylineVerticesWithStyles[prevIdx].third.width + currStyle.width) / 4f
+                miter = PointPair.calculateForMiter(
+                    currX, currY,
+                    polylineVerticesWithStyles[prevIdx].first, polylineVerticesWithStyles[prevIdx].second,
+                    polylineVerticesWithStyles[nextIdx].first, polylineVerticesWithStyles[nextIdx].second,
+                    hw,
+                )
+            } else {
+                when (j) {
+                    0 -> { // 開始点
+                        val nextV = polylineVerticesWithStyles[1]
+                        val dx = nextV.first - currX
+                        val dy = nextV.second - currY
+                        val len = sqrt(dx * dx + dy * dy).coerceAtLeast(0.0001f)
+                        val nx = -dy / len
+                        val ny = dx / len
+                        val hw = currStyle.width / 2f
+                        miter = PointPair(currX - nx * hw, currY - ny * hw, currX + nx * hw, currY + ny * hw)
+                    }
 
-                val prevSegmentStyle = polylineVerticesWithStyles[prevVIndex].third
+                    polylineVerticesWithStyles.size - 1 -> { // 終了点
+                        val prevV = polylineVerticesWithStyles[j - 1]
+                        val dx = currX - prevV.first
+                        val dy = currY - prevV.second
+                        val len = sqrt(dx * dx + dy * dy).coerceAtLeast(0.0001f)
+                        val nx = -dy / len
+                        val ny = dx / len
+                        val hw = polylineVerticesWithStyles[j - 1].third.width / 2f
+                        miter = PointPair(currX - nx * hw, currY - ny * hw, currX + nx * hw, currY + ny * hw)
+                    }
 
-                prevX = polylineVerticesWithStyles[prevVIndex].first
-                prevY = polylineVerticesWithStyles[prevVIndex].second
-                nextX = polylineVerticesWithStyles[nextVIndex].first
-                nextY = polylineVerticesWithStyles[nextVIndex].second
-
-                halfWidthForMiter = (prevSegmentStyle.width + currSegmentStyle.width) / 4f
-            } else { // Open path
-                if (j == 0) { // First vertex of the polyline (start cap)
-                    val firstSegment = segments.first()
-                    prevX = currX - (firstSegment.x2 - firstSegment.x1)
-                    prevY = currY - (firstSegment.y2 - firstSegment.y1)
-                    nextX = polylineVerticesWithStyles[j + 1].first
-                    nextY = polylineVerticesWithStyles[j + 1].second
-                    halfWidthForMiter = currSegmentStyle.width / 2f
-                } else if (j == polylineVerticesWithStyles.size - 1) { // Last vertex of the polyline (end cap)
-                    val lastSegment = segments.last()
-                    prevX = polylineVerticesWithStyles[j - 1].first
-                    prevY = polylineVerticesWithStyles[j - 1].second
-                    nextX = currX + (lastSegment.x2 - lastSegment.x1)
-                    nextY = currY + (lastSegment.y2 - lastSegment.y1)
-                    halfWidthForMiter = currSegmentStyle.width / 2f
-                } else { // Intermediate vertex (joint)
-                    prevX = polylineVerticesWithStyles[j - 1].first
-                    prevY = polylineVerticesWithStyles[j - 1].second
-                    nextX = polylineVerticesWithStyles[j + 1].first
-                    nextY = polylineVerticesWithStyles[j + 1].second
-
-                    val prevSegmentStyle = polylineVerticesWithStyles[j - 1].third
-                    halfWidthForMiter = (prevSegmentStyle.width + currSegmentStyle.width) / 4f
+                    else -> { // 中間点
+                        val prevV = polylineVerticesWithStyles[j - 1]
+                        val nextV = polylineVerticesWithStyles[j + 1]
+                        val hw = (polylineVerticesWithStyles[j - 1].third.width + currStyle.width) / 4f
+                        miter = PointPair.calculateForMiter(
+                            currX, currY,
+                            prevV.first, prevV.second,
+                            nextV.first, nextV.second,
+                            hw,
+                        )
+                    }
                 }
             }
-
-            miteredPoints.add(
-                PointPair.calculateForMiter(
-                    currX,
-                    currY,
-                    prevX,
-                    prevY,
-                    nextX,
-                    nextY,
-                    halfWidthForMiter,
-                ),
-            )
+            miteredPoints.add(miter)
         }
 
-        val numSegmentsToDraw = segments.size
-        for (j in 0 until numSegmentsToDraw) {
+        // 3. 【重要】描画ループ（ここが抜けていました）
+        for (j in 0 until segments.size) {
             val segment = segments[j]
             val startMiter = miteredPoints[j]
-            val endMiter = if (isClosed && j == segments.size - 1) miteredPoints[0] else miteredPoints[j + 1]
-            val style = segment.style
+            val endMiter = miteredPoints[j + 1]
 
-            val finalStartColor: Int
-            val finalEndColor: Int
-
-            if (isPathGradientEnabled) {
-                // Determine start and end colors for gradient
-                finalStartColor = style.color // Color of current segment's start
-                if (j + 1 < numSegmentsToDraw) {
-                    finalEndColor = segments[j + 1].style.color // Color of next segment's start
+            val startColor = segment.style.color
+            val endColor = if (isPathGradientEnabled) {
+                if (j + 1 < segments.size) {
+                    segments[j + 1].style.color
                 } else if (isClosed) {
-                    finalEndColor = segments.first().style.color // For closed path, last segment connects to first
+                    segments.first().style.color
                 } else {
-                    finalEndColor = style.color // For open path, last segment uses its own color
+                    startColor
                 }
             } else {
-                finalStartColor = style.color
-                finalEndColor = style.color
+                startColor
             }
 
-            drawColoredEdge(startMiter, endMiter, finalStartColor, finalEndColor, finalStartColor, finalEndColor)
+            // 頂点を描画コマンドへ追加
+            drawColoredEdge(startMiter, endMiter, startColor, endColor, startColor, endColor)
         }
     }
 }

@@ -13,7 +13,7 @@ import org.joml.Matrix3x2f
 
 class TextRenderer(private val guiGraphics: GuiGraphics) : MinecraftInterface() {
     private fun font(name: String): Font {
-        val client = client as MinecraftAccessor
+        val client = minecraft as MinecraftAccessor
         val fontManager = client.fontManager as IModernFontManager
         val fontSet = fontManager.`infinite$fontSetFromIdentifier`(name)
         return fromFontSet(fontSet)
@@ -25,7 +25,7 @@ class TextRenderer(private val guiGraphics: GuiGraphics) : MinecraftInterface() 
         poseStack.pushMatrix()
 
         poseStack.translate(x, y)
-        val fontSize = size / client.font.lineHeight
+        val fontSize = size / minecraft.font.lineHeight
         poseStack.scale(fontSize, fontSize)
 
         // 描画（座標は0, 0でOK）
@@ -58,7 +58,7 @@ class TextRenderer(private val guiGraphics: GuiGraphics) : MinecraftInterface() 
     ) {
         val fontStr = font
         val font = font(fontStr)
-        val scale = size / client.font.lineHeight
+        val scale = size / minecraft.font.lineHeight
         val width = font.width(text) * scale
         text(fontStr, text, x - width / 2, y - size / 2, color, size, shadow)
     }

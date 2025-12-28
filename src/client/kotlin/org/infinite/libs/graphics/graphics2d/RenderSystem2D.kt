@@ -59,22 +59,38 @@ class RenderSystem2D(
             }
 
             is RenderCommand2D.FillQuad -> {
-                // quadRendererへ移譲 (中身のロジックは既存通り)
-                quadRenderer.fillQuad(
-                    command.x0,
-                    command.y0,
-                    command.x1,
-                    command.y1,
-                    command.x2,
-                    command.y2,
-                    command.x3,
-                    command.y3,
-                    command.col0,
-                ) // 例
+                if (allEqual(command.col0, command.col1, command.col2, command.col3)) {
+                    quadRenderer.fillQuad(
+                        command.x0, command.y0, command.x1, command.y1,
+                        command.x2, command.y2, command.x3, command.y3, command.col0,
+                    )
+                } else {
+                    quadRenderer.fillQuad(
+                        command.x0, command.y0, command.x1, command.y1,
+                        command.x2, command.y2, command.x3, command.y3,
+                        command.col0, command.col1, command.col2, command.col3,
+                    )
+                }
             }
 
             is RenderCommand2D.FillTriangle -> {
-                // triangleRendererへ移譲
+                if (allEqual(command.col0, command.col1, command.col2)) {
+                    triangleRenderer.fillTriangle(
+                        command.x0,
+                        command.y0,
+                        command.x1,
+                        command.y1,
+                        command.x2,
+                        command.y2,
+                        command.col0,
+                    )
+                } else {
+                    triangleRenderer.fillTriangle(
+                        command.x0, command.y0, command.x1, command.y1,
+                        command.x2, command.y2,
+                        command.col0, command.col1, command.col2,
+                    )
+                }
             }
 
             is RenderCommand2D.Text -> {

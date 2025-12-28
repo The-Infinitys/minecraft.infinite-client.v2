@@ -13,6 +13,8 @@ import kotlin.math.sin
 class HelloFeature : LocalFeature() {
     override val defaultToggleKey: Int
         get() = GLFW.GLFW_KEY_F
+
+    @Suppress("Unused")
     val hello by property(IntProperty(1, 1, 100))
 
     init {
@@ -186,10 +188,7 @@ class HelloFeature : LocalFeature() {
         graphics2D.fillQuad(50f, 450f, 100f, 450f, 100f, 500f, 50f, 500f) // 正方形
 
         // --- 7. グラデーションパスのテスト (Path APIの新機能) ---
-        graphics2D.save()
-        graphics2D.translate(100f, 500f) // パスの開始位置を調整
         graphics2D.enablePathGradient = true // Enable gradient for this path
-
         graphics2D.beginPath()
         graphics2D.moveTo(0f, 0f)
 
@@ -214,10 +213,72 @@ class HelloFeature : LocalFeature() {
         graphics2D.closePath()
 
         graphics2D.strokePath()
-        graphics2D.restore()
         graphics2D.textStyle = TextStyle(false, 80f)
         graphics2D.fillStyle = 0xFFFFFFFF.toInt()
         graphics2D.textCentered("Hello, World", graphics2D.width / 2f, graphics2D.height / 2f)
+        val client = net.minecraft.client.Minecraft.getInstance()
+        val player = client.player
+        if (player != null) {
+            // メインハンドのアイテムを取得（空ならダイヤモンドをダミーで生成）
+            val stack = if (!player.mainHandItem.isEmpty) {
+                player.mainHandItem
+            } else {
+                net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND)
+            }
+            // 通常サイズ (16x16相当)
+            graphics2D.item(stack, 0f, 0f)
+
+            // 拡大サイズ (32x32相当)
+            graphics2D.save()
+            graphics2D.translate(100f, 100f)
+            graphics2D.rotateAt((Math.PI / 4).toFloat(), 130f, 100f)
+            graphics2D.itemCentered(stack, 30f, 0f, 32f)
+            graphics2D.restore()
+            graphics2D.item(stack, 0f, 0f, 48f)
+        }
+
+        // --- 9. 新機能: テクスチャ描画テスト (TextureRenderer) ---
+        // 例としてウィジェットのテクスチャ（ボタンなど）を描画
+        val buttonTexture =
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "textures/gui/widgets.png")
+        graphics2D.image(
+            buttonTexture,
+            450f, 500f, // 描画位置
+            200f, 20f, // 描画サイズ (幅, 高さ)
+            0f, 46f, // テクスチャ内のUV座標 (通常のボタンの位置)
+            200f, 20f, // UVの幅・高さ
+            256f, 256f, // テクスチャ全体の解像度
+            0xFFFFFFFF.toInt(), // 色指定（白＝そのまま）
+        )
+
+        // --- 10. 新機能: クリッピング (Scissor) テスト ---
+        // 指定した矩形範囲外を描画されないように制限する
+        graphics2D.save()
+        val scissorX = 50
+        val scissorY = 150
+        val scissorW = 100
+        val scissorH = 100
+
+        // ガイド用の背景
+        graphics2D.fillStyle = 0x40FFFFFF
+        graphics2D.fillRect(scissorX.toFloat(), scissorY.toFloat(), scissorW.toFloat(), scissorH.toFloat())
+
+        // クリップ有効化
+        graphics2D.enableScissor(scissorX, scissorY, scissorW, scissorH)
+
+        // 範囲からはみ出すように大きな図形を描画
+        graphics2D.fillStyle = 0xFFFF0000.toInt() // 赤
+        graphics2D.fillRect(scissorX - 20f, scissorY + 20f, 200f, 20f)
+
+        // クリップ内でのアニメーション
+        val circleTime = (System.currentTimeMillis() % 2000) / 2000.0 * Math.PI * 2
+        val movingX = (scissorX + scissorW / 2) + cos(circleTime).toFloat() * 60f
+        val movingY = (scissorY + scissorH / 2) + sin(circleTime).toFloat() * 60f
+        graphics2D.fillStyle = 0xFF00FF00.toInt() // 緑の円（四角）
+        graphics2D.fillRect(movingX - 10f, movingY - 10f, 20f, 20f)
+
+        graphics2D.disableScissor()
+        graphics2D.restore()
         return graphics2D
     }
 }

@@ -12,7 +12,7 @@ import org.infinite.utils.toLowerSnakeCase
 import java.io.File
 
 object ConfigManager : MinecraftInterface() {
-    private val baseDir = File(client.run { gameDirectory }, "infinite/config")
+    private val baseDir = File(minecraft.run { gameDirectory }, "infinite/config")
 
     private val json: Json by lazy {
         Json {
@@ -204,8 +204,8 @@ object ConfigManager : MinecraftInterface() {
     }
 
     private fun getLocalPath(): String? {
-        val isLocal = client.isLocalServer
-        val name = if (isLocal) client.singleplayerServer?.storageSource?.levelId else client.currentServer?.name
+        val isLocal = minecraft.isLocalServer
+        val name = if (isLocal) minecraft.singleplayerServer?.storageSource?.levelId else minecraft.currentServer?.name
         return name?.let { "${if (isLocal) "sp" else "mp"}/$it" }
     }
 }

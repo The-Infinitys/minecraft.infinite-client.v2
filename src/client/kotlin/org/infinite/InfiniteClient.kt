@@ -40,8 +40,8 @@ object InfiniteClient : MinecraftInterface(), ClientModInitializer {
             ),
         ),
     ) {
-        client.execute {
-            client.setScreen(GameScreen())
+        minecraft.execute {
+            minecraft.setScreen(GameScreen())
         }
     }
 

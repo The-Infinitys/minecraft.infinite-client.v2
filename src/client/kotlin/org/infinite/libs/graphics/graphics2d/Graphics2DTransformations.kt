@@ -21,6 +21,26 @@ class Graphics2DTransformations(
         transformMatrix.translate(x, y)
     }
 
+    fun rotate(angle: Float) {
+        // 角度はラジアンで指定 (度をラジアンにする場合は Math.toRadians(angle) を使用)
+        transformMatrix.rotate(angle)
+    }
+
+    fun scale(x: Float, y: Float) {
+        transformMatrix.scale(x, y)
+    }
+
+    fun setTransform(m00: Float, m10: Float, m01: Float, m11: Float, m02: Float, m12: Float) {
+        transformMatrix.set(m00, m10, m01, m11, m02, m12)
+    }
+
+    /**
+     * 単位行列にリセット
+     */
+    fun resetTransform() {
+        transformMatrix.identity()
+    }
+
     /**
      * 現在の変換状態をスタックに保存します。
      */
