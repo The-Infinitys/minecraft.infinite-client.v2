@@ -60,6 +60,7 @@ public record ColoredTriangleRenderState(
   }
 
   /** 1->2->3->1 の順で4つの頂点を構築します。 */
+  @Override
   public void buildVertices(VertexConsumer vertexConsumer) {
     // 頂点 1
     vertexConsumer.addVertexWith2DPose(this.pose(), this.x0, this.y0).setColor(this.col0);

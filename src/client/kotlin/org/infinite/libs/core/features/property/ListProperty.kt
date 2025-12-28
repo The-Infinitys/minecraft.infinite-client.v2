@@ -9,37 +9,46 @@ import org.infinite.libs.core.features.Property
  */
 open class ListProperty<T>(
     default: List<T>,
-) : Property<List<T>>(default) {
-    private val _value: MutableList<T> = default.toMutableList()
+) : Property<List<T>>(default.toList()) {
+
+    // 内部的なリスト操作もスレッド安全にする
+    private val internalList = java.util.concurrent.CopyOnWriteArrayList<T>(default)
+
+    override fun filterValue(newValue: List<T>): List<T> {
+        // リスト全体が差し替えられた場合、内部リストを同期する
+        internalList.clear()
+        internalList.addAll(newValue)
+        return internalList.toList()
+    }
 
     /**
-     * 現在保持しているリスト（読み取り専用）
+     * 要素を追加し、Propertyの値を更新して通知を飛ばす
      */
-    override var value: List<T>
-        get() = _value
-        set(value) {
-            _value.clear()
-            _value.addAll(value)
-        }
-
-    /**
-     * 要素を追加する
-     */
-    fun add(element: T): Boolean =
-        if (!_value.contains(element)) {
-            _value.add(element)
+    fun add(element: T): Boolean {
+        return if (!internalList.contains(element)) {
+            internalList.add(element)
+            sync() // 値を更新して通知
             true
         } else {
             false
         }
+    }
+
+    fun remove(element: T): Boolean {
+        return if (internalList.remove(element)) {
+            sync()
+            true
+        } else {
+            false
+        }
+    }
+
+    fun contains(element: T): Boolean = internalList.contains(element)
 
     /**
-     * 要素を削除する
+     * 現在の internalList の状態を Property.value に反映させ、通知を発生させる
      */
-    fun remove(element: T): Boolean = _value.remove(element)
-
-    /**
-     * 特定の要素が含まれているか確認
-     */
-    fun contains(element: T): Boolean = _value.contains(element)
+    private fun sync() {
+        value = internalList.toList()
+    }
 }

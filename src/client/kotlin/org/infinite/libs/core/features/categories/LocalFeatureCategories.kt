@@ -6,7 +6,7 @@ import org.infinite.InfiniteClient
 import org.infinite.libs.core.features.FeatureCategories
 import org.infinite.libs.core.features.categories.category.LocalCategory
 import org.infinite.libs.core.features.feature.LocalFeature
-import org.infinite.libs.graphics.graphics2d.structs.RenderCommand
+import org.infinite.libs.graphics.graphics2d.structs.RenderCommand2D
 import org.infinite.libs.translation.TranslationChecker
 import java.util.*
 import kotlin.reflect.KClass
@@ -60,24 +60,24 @@ abstract class LocalFeatureCategories : FeatureCategories<
 
     // --- レンダリング統合ロジック ---
 
-    suspend fun onStartUiRendering(deltaTracker: DeltaTracker): List<RenderCommand> {
+    suspend fun onStartUiRendering(deltaTracker: DeltaTracker): List<RenderCommand2D> {
         return mergeCategoriesRendering { it.onStartUiRendering(deltaTracker) }
     }
 
-    suspend fun onEndUiRendering(deltaTracker: DeltaTracker): List<RenderCommand> {
+    suspend fun onEndUiRendering(deltaTracker: DeltaTracker): List<RenderCommand2D> {
         return mergeCategoriesRendering { it.onEndUiRendering(deltaTracker) }
     }
 
     private suspend fun mergeCategoriesRendering(
-        fetchBlock: suspend (LocalCategory) -> LinkedList<Pair<Int, List<RenderCommand>>>,
-    ): List<RenderCommand> = coroutineScope {
+        fetchBlock: suspend (LocalCategory) -> LinkedList<Pair<Int, List<RenderCommand2D>>>,
+    ): List<RenderCommand2D> = coroutineScope {
         // 1. 各カテゴリーから並列取得
         val deferredResults = categories.values.map { category ->
             async(Dispatchers.Default) { fetchBlock(category) }
         }.awaitAll()
 
         // 2. Priority順に自動ソートされる TreeMap で統合
-        val sortedMap = TreeMap<Int, MutableList<RenderCommand>>()
+        val sortedMap = TreeMap<Int, MutableList<RenderCommand2D>>()
         for (categoryResult in deferredResults) {
             for ((priority, commands) in categoryResult) {
                 sortedMap.getOrPut(priority) { mutableListOf() }.addAll(commands)
@@ -85,7 +85,7 @@ abstract class LocalFeatureCategories : FeatureCategories<
         }
 
         // 3. フラット化
-        val finalCommands = mutableListOf<RenderCommand>()
+        val finalCommands = mutableListOf<RenderCommand2D>()
         for (commandsInPriority in sortedMap.values) {
             finalCommands.addAll(commandsInPriority)
         }

@@ -5,6 +5,7 @@ import net.minecraft.client.KeyMapping
 import org.infinite.libs.core.TickInterface
 import org.infinite.libs.core.features.Feature
 import org.infinite.libs.graphics.Graphics2D
+import org.infinite.libs.graphics.Graphics3D
 import org.lwjgl.glfw.GLFW
 
 open class LocalFeature : Feature(), TickInterface {
@@ -83,4 +84,5 @@ open class LocalFeature : Feature(), TickInterface {
     val renderPriority = RenderPriority(0, 0)
     open fun onStartUiRendering(graphics2D: Graphics2D): Graphics2D = graphics2D
     open fun onEndUiRendering(graphics2D: Graphics2D): Graphics2D = graphics2D
+    open fun onLevelRendering(graphics3D: Graphics3D): Graphics3D = graphics3D
 }

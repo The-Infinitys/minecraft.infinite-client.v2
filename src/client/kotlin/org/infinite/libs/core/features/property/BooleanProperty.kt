@@ -9,6 +9,10 @@ import org.infinite.libs.core.features.Property
 class BooleanProperty(
     default: Boolean,
 ) : Property<Boolean>(default) {
+    /**
+     * 現在の値を反転させます。
+     * 親クラスの setter を通るので、スレッド安全かつ通知も飛びます。
+     */
     fun toggle() {
         value = !value
     }

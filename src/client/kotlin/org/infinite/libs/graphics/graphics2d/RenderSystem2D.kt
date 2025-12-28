@@ -1,7 +1,7 @@
 package org.infinite.libs.graphics.graphics2d
 
 import net.minecraft.client.gui.GuiGraphics
-import org.infinite.libs.graphics.graphics2d.structs.RenderCommand
+import org.infinite.libs.graphics.graphics2d.structs.RenderCommand2D
 import org.infinite.libs.graphics.graphics2d.system.QuadRenderer
 import org.infinite.libs.graphics.graphics2d.system.RectRenderer
 import org.infinite.libs.graphics.graphics2d.system.TextRenderer
@@ -15,14 +15,14 @@ class RenderSystem2D(
     private val triangleRenderer: TriangleRenderer = TriangleRenderer(gui)
     private val textRenderer: TextRenderer = TextRenderer(gui)
 
-    fun render(commands: List<RenderCommand>) {
+    fun render(commands: List<RenderCommand2D>) {
         commands.forEach { executeCommand(it) }
     }
 
-    private fun executeCommand(command: RenderCommand) {
+    private fun executeCommand(command: RenderCommand2D) {
         when (command) {
             // --- Transform (変換行列) ---
-            is RenderCommand.SetTransform -> {
+            is RenderCommand2D.SetTransform -> {
                 // 現在のPoseStackを一度初期状態(Identity)に戻し、新しい行列を適用する
                 // これにより Canvas API の setTransform(m) と同等の挙動になります
                 val pose = gui.pose()
@@ -33,7 +33,7 @@ class RenderSystem2D(
             }
 
             // --- Clipping (クリッピング) ---
-            is RenderCommand.EnableScissor -> {
+            is RenderCommand2D.EnableScissor -> {
                 // Minecraft標準のScissorを適用
                 // x, y, width, height -> x, y, x2, y2 に変換して渡す
                 gui.enableScissor(
@@ -44,12 +44,12 @@ class RenderSystem2D(
                 )
             }
 
-            is RenderCommand.DisableScissor -> {
+            is RenderCommand2D.DisableScissor -> {
                 gui.disableScissor()
             }
 
             // --- 既存の描画ロジック ---
-            is RenderCommand.FillRect -> {
+            is RenderCommand2D.FillRect -> {
                 if (allEqual(command.col0, command.col1, command.col2, command.col3)) {
                     rectRenderer.fillRect(command.x, command.y, command.width, command.height, command.col0)
                 } else {
@@ -66,7 +66,7 @@ class RenderSystem2D(
                 }
             }
 
-            is RenderCommand.FillQuad -> {
+            is RenderCommand2D.FillQuad -> {
                 if (allEqual(command.col0, command.col1, command.col2, command.col3)) {
                     quadRenderer.fillQuad(
                         command.x0,
@@ -97,7 +97,7 @@ class RenderSystem2D(
                 }
             }
 
-            is RenderCommand.FillTriangle -> {
+            is RenderCommand2D.FillTriangle -> {
                 if (allEqual(command.col0, command.col1, command.col2)) {
                     triangleRenderer.fillTriangle(
                         command.x0,
@@ -123,7 +123,7 @@ class RenderSystem2D(
                 }
             }
 
-            is RenderCommand.Text -> {
+            is RenderCommand2D.Text -> {
                 textRenderer.text(
                     command.font,
                     command.text,
@@ -135,7 +135,7 @@ class RenderSystem2D(
                 )
             }
 
-            is RenderCommand.TextCentered -> {
+            is RenderCommand2D.TextCentered -> {
                 textRenderer.textCentered(
                     command.font,
                     command.text,

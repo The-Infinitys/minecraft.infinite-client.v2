@@ -56,6 +56,7 @@ public record ColoredRectangleRenderState(
         getBounds(x0, y0, x1, y1, matrix3x2fc, screenRectangle));
   }
 
+  @Override
   public void buildVertices(VertexConsumer vertexConsumer) {
     // 頂点1: 左上 (x0, y0)
     vertexConsumer
@@ -88,7 +89,7 @@ public record ColoredRectangleRenderState(
     int ih = (int) Math.ceil(y1 - y0);
 
     ScreenRectangle screenRectangle2 =
-        (new ScreenRectangle(ix0, iy0, iw, ih)).transformMaxBounds(matrix3x2fc);
+        new ScreenRectangle(ix0, iy0, iw, ih).transformMaxBounds(matrix3x2fc);
     return screenRectangle != null
         ? screenRectangle.intersection(screenRectangle2)
         : screenRectangle2;

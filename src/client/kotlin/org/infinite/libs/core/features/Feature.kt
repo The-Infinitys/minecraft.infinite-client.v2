@@ -2,29 +2,53 @@ package org.infinite.libs.core.features
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import org.infinite.InfiniteClient
 import org.infinite.libs.interfaces.MinecraftInterface
 import org.infinite.libs.log.LogSystem
 import org.infinite.utils.toLowerSnakeCase
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.concurrent.atomics.AtomicBoolean
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
 
-@OptIn(ExperimentalAtomicApi::class)
 open class Feature : MinecraftInterface() {
+    // --- 追加: カテゴリ参照 ---
+    /**
+     * このFeatureが属するカテゴリのクラス。依存解決に使用します。
+     * 各Featureの実装クラスで override して指定してください。
+     */
+    open val categoryClass: KClass<out Category<*, *>>? = null
+
+    // --- 1. 定義とステータス ---
+    enum class FeatureType { Utils, Extend, Cheat }
+    enum class Timing { Start, End }
+
     private val _properties: ConcurrentHashMap<String, Property<*>> = ConcurrentHashMap()
-    private val enabled = AtomicBoolean(false)
+    val enabled = Property(false)
 
-    fun isEnabled(): Boolean = enabled.load()
-    fun enable() = enabled.store(true)
-    fun disable() = enabled.store(false)
-    fun toggle() = if (isEnabled()) disable() else enable()
+    open val featureType: FeatureType = FeatureType.Utils
 
-    protected fun <T, P : Property<T>> property(property: P): PropertyDelegate<T, P> {
-        return PropertyDelegate(property)
+    // --- 2. 依存・矛盾関係の管理 ---
+    // ここも KClass を保持するように定義を明確化
+    open val depends: List<KClass<out Feature>> = emptyList()
+    open val conflicts: List<KClass<out Feature>> = emptyList()
+    private val listenerLock = Any()
+    private val dependencyListeners = CopyOnWriteArrayList<() -> Unit>()
+    init {
+        enabled.addListener { _, isEnabled ->
+            if (isEnabled) {
+                resolveDependencies()
+                onEnabled()
+            } else {
+                onDisabled()
+            }
+        }
     }
+
+    // --- 3. プロパティ委譲ロジック ---
+    protected fun <T, P : Property<T>> property(property: P): PropertyDelegate<T, P> = PropertyDelegate(property)
 
     protected inner class PropertyDelegate<T, P : Property<T>>(val property: P) {
         operator fun getValue(thisRef: Feature, prop: KProperty<*>): P {
@@ -33,73 +57,85 @@ open class Feature : MinecraftInterface() {
         }
     }
 
-    /**
-     * プロパティを明示的に登録します
-     */
     private fun register(name: String, property: Property<*>) {
-        if (!_properties.containsKey(name)) {
-            _properties[name] = property
-        }
+        _properties.putIfAbsent(name, property)
     }
 
-    /**
-     * 未アクセスの委譲プロパティをすべてマップに登録します。
-     */
     private fun ensureAllPropertiesRegistered() {
         this::class.declaredMemberProperties.forEach { prop ->
             try {
                 prop.isAccessible = true
                 prop.getter.call(this)
             } catch (e: Exception) {
-                LogSystem.error("$e")
+                LogSystem.error("Failed to register property ${prop.name}: $e")
             }
         }
     }
+    open fun onEnabled() {}
+    open fun onDisabled() {}
+    fun enable() {
+        if (isEnabled()) return
+        startResolver()
+        enabled.value = true
+    }
 
+    fun disable() {
+        if (!isEnabled()) return
+        stopResolver()
+        enabled.value = false
+    }
+
+    fun isEnabled(): Boolean = enabled.value
+    fun toggle() = if (isEnabled()) disable() else enable()
+
+    private fun startResolver() = synchronized(listenerLock) {
+        val cat = categoryClass ?: return@synchronized
+
+        depends.forEach { target ->
+            val feat = InfiniteClient.feature(cat, target) ?: return@forEach
+            val listener: (Boolean, Boolean) -> Unit = { _, newVal -> if (!newVal) disable() }
+            feat.enabled.addListener(listener)
+            dependencyListeners.add { feat.enabled.removeListener(listener) }
+        }
+        conflicts.forEach { target ->
+            val feat = InfiniteClient.feature(cat, target) ?: return@forEach
+            val listener: (Boolean, Boolean) -> Unit = { _, newVal -> if (newVal) disable() }
+            feat.enabled.addListener(listener)
+            dependencyListeners.add { feat.enabled.removeListener(listener) }
+        }
+    }
+
+    private fun stopResolver() = synchronized(listenerLock) {
+        dependencyListeners.forEach { it() }
+        dependencyListeners.clear()
+    }
+
+    private fun resolveDependencies() {
+        val cat = categoryClass ?: return
+
+        depends.forEach { InfiniteClient.feature(cat, it)?.let { f -> if (!f.isEnabled()) f.enable() } }
+        conflicts.forEach { InfiniteClient.feature(cat, it)?.let { f -> if (f.isEnabled()) f.disable() } }
+    }
+
+    // --- 6. データ管理・翻訳 (変更なし) ---
     @Serializable
-    data class FeatureData(
-        val enabled: Boolean,
-        // properties は中身が動的なので、前述の GenericMapSerializer 等で扱うか、
-        // ここでは単純な構造として定義します
-        val properties: Map<String, @Contextual Any?>,
-    )
+    data class FeatureData(val enabled: Boolean, val properties: Map<String, @Contextual Any?>)
 
     fun data(): FeatureData {
-        // 未アクセスの委譲プロパティをすべて登録
         ensureAllPropertiesRegistered()
-
         return FeatureData(
             enabled = isEnabled(),
-            properties = _properties.mapKeys { (name, _) ->
-                name.toLowerSnakeCase()
-            }.mapValues { (_, property) ->
-                property.value
-            },
+            properties = _properties.mapKeys { it.key.toLowerSnakeCase() }.mapValues { it.value.value },
         )
     }
 
-    // --- 以下、既存ロジックの調整 ---
-
-    fun translation(name: String): String? {
-        ensureAllPropertiesRegistered()
-        val key = _properties.keys.find { it.equals(name, ignoreCase = true) }
-        return key?.let { "$translationKey.${it.toLowerSnakeCase()}" }
-    }
-
-    fun translation(): String {
-        ensureAllPropertiesRegistered()
-        return translationKey
-    }
-
-    val translations: List<String>
-        get() {
-            ensureAllPropertiesRegistered()
-            return listOf(translationKey) + _properties.keys.map { "$translationKey.${it.toLowerSnakeCase()}" }
+    fun translation(): String = translationKey
+    fun translation(p: String): String? {
+        return if (_properties[p] == null) {
+            null
+        } else {
+            translationKey + "." + p.toLowerSnakeCase()
         }
-
-    fun list(): List<Pair<String, Property<*>>> {
-        ensureAllPropertiesRegistered()
-        return _properties.toList()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -116,17 +152,15 @@ open class Feature : MinecraftInterface() {
     }
 
     private val translationKey: String by lazy {
-        val modId = "infinite"
-        val translationCategory = "features"
-        val fullName = this::class.qualifiedName ?: throw IllegalArgumentException("Qualified name not found")
+        val fullName = this::class.qualifiedName ?: "unknown"
         val parts = fullName.split(".")
         if (parts.size >= 4) {
             val className = parts.last().toLowerSnakeCase()
             val category = parts[parts.size - 3].toLowerSnakeCase()
             val scope = parts[parts.size - 4].toLowerSnakeCase()
-            "$modId.$translationCategory.$scope.$category.$className"
+            "infinite.features.$scope.$category.$className"
         } else {
-            "$modId.$translationCategory.general.${parts.last().toLowerSnakeCase()}"
+            "infinite.features.general.${parts.last().toLowerSnakeCase()}"
         }
     }
 }

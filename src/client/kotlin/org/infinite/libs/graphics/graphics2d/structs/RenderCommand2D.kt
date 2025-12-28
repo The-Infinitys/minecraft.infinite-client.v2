@@ -2,7 +2,7 @@ package org.infinite.libs.graphics.graphics2d.structs
 
 import org.joml.Matrix3x2f
 
-sealed interface RenderCommand {
+sealed interface RenderCommand2D {
     // 矩形の塗りつぶし
     data class FillRect(
         val x: Float,
@@ -13,7 +13,7 @@ sealed interface RenderCommand {
         val col1: Int, // 右上
         val col2: Int, // 右下
         val col3: Int, // 左下
-    ) : RenderCommand
+    ) : RenderCommand2D
 
     // 四角形の塗りつぶし
     data class FillQuad(
@@ -29,7 +29,7 @@ sealed interface RenderCommand {
         val col1: Int,
         val col2: Int,
         val col3: Int,
-    ) : RenderCommand
+    ) : RenderCommand2D
 
     // 三角形の塗りつぶし
     data class FillTriangle(
@@ -42,7 +42,7 @@ sealed interface RenderCommand {
         val col0: Int,
         val col1: Int,
         val col2: Int,
-    ) : RenderCommand
+    ) : RenderCommand2D
 
     data class Text(
         val font: String,
@@ -52,7 +52,7 @@ sealed interface RenderCommand {
         val color: Int,
         val shadow: Boolean,
         val size: Float,
-    ) : RenderCommand
+    ) : RenderCommand2D
     data class TextCentered(
         val font: String,
         val text: String,
@@ -61,8 +61,8 @@ sealed interface RenderCommand {
         val color: Int,
         val shadow: Boolean,
         val size: Float,
-    ) : RenderCommand
-    data class SetTransform(val matrix: Matrix3x2f) : RenderCommand
-    data class EnableScissor(val x: Int, val y: Int, val width: Int, val height: Int) : RenderCommand
-    object DisableScissor : RenderCommand
+    ) : RenderCommand2D
+    data class SetTransform(val matrix: Matrix3x2f) : RenderCommand2D
+    data class EnableScissor(val x: Int, val y: Int, val width: Int, val height: Int) : RenderCommand2D
+    object DisableScissor : RenderCommand2D
 }

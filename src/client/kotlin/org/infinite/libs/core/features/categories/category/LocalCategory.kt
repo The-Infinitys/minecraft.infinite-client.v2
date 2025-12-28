@@ -5,7 +5,7 @@ import net.minecraft.client.DeltaTracker
 import org.infinite.libs.core.features.Category
 import org.infinite.libs.core.features.feature.LocalFeature
 import org.infinite.libs.graphics.Graphics2D
-import org.infinite.libs.graphics.graphics2d.structs.RenderCommand
+import org.infinite.libs.graphics.graphics2d.structs.RenderCommand2D
 import java.util.*
 import java.util.concurrent.PriorityBlockingQueue
 import kotlin.reflect.KClass
@@ -36,24 +36,30 @@ abstract class LocalCategory : Category<KClass<out LocalFeature>, LocalFeature>(
 
     // --- Rendering Logic ---
 
-    open suspend fun onStartUiRendering(deltaTracker: DeltaTracker): LinkedList<Pair<Int, List<RenderCommand>>> {
+    open suspend fun onStartUiRendering(deltaTracker: DeltaTracker): LinkedList<Pair<Int, List<RenderCommand2D>>> {
         return collectAndGroupRenderCommands(deltaTracker) { feature, graphics ->
             feature.onStartUiRendering(graphics)
             feature.renderPriority.start
         }
     }
 
-    open suspend fun onEndUiRendering(deltaTracker: DeltaTracker): LinkedList<Pair<Int, List<RenderCommand>>> {
+    open suspend fun onEndUiRendering(deltaTracker: DeltaTracker): LinkedList<Pair<Int, List<RenderCommand2D>>> {
         return collectAndGroupRenderCommands(deltaTracker) { feature, graphics ->
             feature.onEndUiRendering(graphics)
             feature.renderPriority.end
+        }
+    }
+    open suspend fun onLevelRendering(deltaTracker: DeltaTracker): LinkedList<Pair<Int, List<RenderCommand2D>>> {
+        return collectAndGroupRenderCommands(deltaTracker) { feature, graphics ->
+            feature.onStartUiRendering(graphics)
+            feature.renderPriority.start
         }
     }
 
     private suspend fun collectAndGroupRenderCommands(
         deltaTracker: DeltaTracker,
         block: (LocalFeature, Graphics2D) -> Int,
-    ): LinkedList<Pair<Int, List<RenderCommand>>> = coroutineScope {
+    ): LinkedList<Pair<Int, List<RenderCommand2D>>> = coroutineScope {
         val tempQueue = PriorityBlockingQueue<InternalCommandWrapper>(256, compareBy { it.priority })
 
         enabledFeatures().map { feature ->
@@ -67,7 +73,7 @@ abstract class LocalCategory : Category<KClass<out LocalFeature>, LocalFeature>(
             }
         }.awaitAll()
 
-        val result = LinkedList<Pair<Int, List<RenderCommand>>>()
+        val result = LinkedList<Pair<Int, List<RenderCommand2D>>>()
         while (tempQueue.isNotEmpty()) {
             val wrapper = tempQueue.poll() ?: break
             if (result.isNotEmpty() && result.last().first == wrapper.priority) {
@@ -88,5 +94,5 @@ abstract class LocalCategory : Category<KClass<out LocalFeature>, LocalFeature>(
         return result.toList()
     }
 
-    private data class InternalCommandWrapper(val priority: Int, val commands: List<RenderCommand>)
+    private data class InternalCommandWrapper(val priority: Int, val commands: List<RenderCommand2D>)
 }

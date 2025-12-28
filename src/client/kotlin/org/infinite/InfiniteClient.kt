@@ -11,6 +11,11 @@ import org.infinite.infinite.InfiniteLocalFeatures
 import org.infinite.infinite.theme.default.DefaultTheme
 import org.infinite.infinite.theme.infinite.InfiniteTheme
 import org.infinite.libs.config.ConfigManager
+import org.infinite.libs.core.features.Category
+import org.infinite.libs.core.features.Feature
+import org.infinite.libs.core.features.categories.category.GlobalCategory
+import org.infinite.libs.core.features.categories.category.LocalCategory
+import org.infinite.libs.core.features.feature.GlobalFeature
 import org.infinite.libs.core.features.feature.LocalFeature
 import org.infinite.libs.core.tick.SystemTicks
 import org.infinite.libs.core.tick.WorldTicks
@@ -21,6 +26,7 @@ import org.infinite.libs.ui.screen.GameScreen
 import org.infinite.libs.ui.theme.Theme
 import org.infinite.libs.ui.theme.ThemeManager
 import org.lwjgl.glfw.GLFW
+import kotlin.reflect.KClass
 
 object InfiniteClient : MinecraftInterface(), ClientModInitializer {
     val globalFeatures = InfiniteGlobalFeatures()
@@ -38,6 +44,38 @@ object InfiniteClient : MinecraftInterface(), ClientModInitializer {
             client.setScreen(GameScreen())
         }
     }
+
+    /**
+     * ハッシュマップを使用して $O(1)$ でFeatureインスタンスを取得します。
+     * * @param category 検索対象のカテゴリクラス (Key)
+     * @param feature 検索対象の機能クラス (Key)
+     * @throws IllegalArgumentException カテゴリが登録されていない場合
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun <C : Category<*, *>, F : Feature> feature(category: KClass<C>, feature: KClass<out F>): F? {
+        return when {
+            GlobalCategory::class.java.isAssignableFrom(category.java) -> {
+                val globalCategory = globalFeatures.getCategory(category as KClass<out GlobalCategory>)
+                if (GlobalFeature::class.java.isAssignableFrom(feature.java)) {
+                    globalCategory?.getFeature(feature as KClass<out GlobalFeature>) as? F
+                } else {
+                    null
+                }
+            }
+
+            LocalCategory::class.java.isAssignableFrom(category.java) -> {
+                val localCategory = localFeatures.getCategory(category as KClass<out LocalCategory>)
+                if (LocalFeature::class.java.isAssignableFrom(feature.java)) {
+                    localCategory?.getFeature(feature as KClass<out LocalFeature>) as? F
+                } else {
+                    null
+                }
+            }
+
+            else -> null
+        }
+    }
+
     val worldTicks = WorldTicks(localFeatures)
     val themeManager: ThemeManager = ThemeManager(DefaultTheme())
     val theme: Theme

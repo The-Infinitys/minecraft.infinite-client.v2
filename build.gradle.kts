@@ -1,4 +1,3 @@
-import net.ltgt.gradle.errorprone.CheckSeverity
 import net.ltgt.gradle.errorprone.errorprone
 import org.gradle.kotlin.dsl.invoke
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -164,6 +163,10 @@ spotless {
 tasks.withType<JavaCompile>().configureEach {
     options.errorprone {
         isEnabled.set(true)
+        option(
+            "UnusedMethod:ExemptAnnotations",
+            "org.spongepowered.asm.mixin.injection.Inject,org.spongepowered.asm.mixin.injection.ModifyArg,org.spongepowered.asm.mixin.injection.ModifyVariable,org.spongepowered.asm.mixin.injection.Redirect",
+        )
     }
 }
 

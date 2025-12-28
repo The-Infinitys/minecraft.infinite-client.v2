@@ -1,17 +1,17 @@
 package org.infinite.libs.graphics.graphics2d
 
-import org.infinite.libs.graphics.graphics2d.structs.RenderCommand
+import org.infinite.libs.graphics.graphics2d.structs.RenderCommand2D
 import java.util.LinkedList
 import kotlin.math.atan2
 
 class Graphics2DPrimitivesFill(
-    private val commandQueue: LinkedList<RenderCommand>,
+    private val commandQueue: LinkedList<RenderCommand2D>,
     private val getFillStyle: () -> Int, // Lambda to get current fillStyle from Graphics2D
 ) {
     private val fillStyle: Int get() = getFillStyle()
 
     fun fillRect(x: Float, y: Float, width: Float, height: Float) {
-        commandQueue.add(RenderCommand.FillRect(x, y, width, height, fillStyle, fillStyle, fillStyle, fillStyle))
+        commandQueue.add(RenderCommand2D.FillRect(x, y, width, height, fillStyle, fillStyle, fillStyle, fillStyle))
     }
 
     fun fillQuad(x0: Float, y0: Float, x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float) {
@@ -49,7 +49,7 @@ class Graphics2DPrimitivesFill(
         vertices.sortBy { atan2((it.y - centerY).toDouble(), (it.x - centerX).toDouble()) }
 
         commandQueue.add(
-            RenderCommand.FillQuad(
+            RenderCommand2D.FillQuad(
                 vertices[0].x, vertices[0].y,
                 vertices[1].x, vertices[1].y,
                 vertices[2].x, vertices[2].y,
@@ -97,6 +97,6 @@ class Graphics2DPrimitivesFill(
         c1: Int,
         c2: Int,
     ) {
-        commandQueue.add(RenderCommand.FillTriangle(x0, y0, x1, y1, x2, y2, c0, c1, c2))
+        commandQueue.add(RenderCommand2D.FillTriangle(x0, y0, x1, y1, x2, y2, c0, c1, c2))
     }
 }

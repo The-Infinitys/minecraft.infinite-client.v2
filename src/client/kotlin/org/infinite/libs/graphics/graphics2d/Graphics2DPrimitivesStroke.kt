@@ -1,13 +1,13 @@
 package org.infinite.libs.graphics.graphics2d
 
-import org.infinite.libs.graphics.graphics2d.structs.RenderCommand
+import org.infinite.libs.graphics.graphics2d.structs.RenderCommand2D
 import org.infinite.libs.graphics.graphics2d.structs.StrokeStyle
 import org.infinite.libs.graphics.graphics2d.system.PathSegment
 import org.infinite.libs.graphics.graphics2d.system.PointPair
 import java.util.LinkedList
 
 class Graphics2DPrimitivesStroke(
-    private val commandQueue: LinkedList<RenderCommand>,
+    private val commandQueue: LinkedList<RenderCommand2D>,
     private val getStrokeStyle: () -> StrokeStyle?, // Lambda to get current strokeStyle from Graphics2D
     private val enablePathGradient: () -> Boolean, // Lambda to get enablePathGradient from Graphics2D
 ) {
@@ -38,7 +38,7 @@ class Graphics2DPrimitivesStroke(
         val p4 = PointPair(x + w - v, y + v, x + w + v, y - v)
 
         commandQueue.add(
-            RenderCommand.FillQuad(
+            RenderCommand2D.FillQuad(
                 p1.ix,
                 p1.iy,
                 p1.ox,
@@ -54,7 +54,7 @@ class Graphics2DPrimitivesStroke(
             ),
         )
         commandQueue.add(
-            RenderCommand.FillQuad(
+            RenderCommand2D.FillQuad(
                 p2.ix,
                 p2.iy,
                 p2.ox,
@@ -70,7 +70,7 @@ class Graphics2DPrimitivesStroke(
             ),
         )
         commandQueue.add(
-            RenderCommand.FillQuad(
+            RenderCommand2D.FillQuad(
                 p3.ix,
                 p3.iy,
                 p3.ox,
@@ -86,7 +86,7 @@ class Graphics2DPrimitivesStroke(
             ),
         )
         commandQueue.add(
-            RenderCommand.FillQuad(
+            RenderCommand2D.FillQuad(
                 p4.ix,
                 p4.iy,
                 p4.ox,
@@ -168,7 +168,7 @@ class Graphics2DPrimitivesStroke(
         // 頂点指定順序:
         // 1: 開始外(ox,oy) -> 2: 終了外(ox,oy) -> 3: 終了内(ix,iy) -> 4: 開始内(ix,iy)
         commandQueue.add(
-            RenderCommand.FillQuad(
+            RenderCommand2D.FillQuad(
                 start.ox, start.oy,
                 end.ox, end.oy,
                 end.ix, end.iy,

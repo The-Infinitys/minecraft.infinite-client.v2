@@ -1,6 +1,6 @@
 package org.infinite.libs.graphics.graphics2d.system
 
-import org.infinite.libs.graphics.graphics2d.structs.RenderCommand
+import org.infinite.libs.graphics.graphics2d.structs.RenderCommand2D
 import org.infinite.libs.graphics.graphics2d.structs.StrokeStyle
 import java.util.LinkedList
 import kotlin.math.*
@@ -10,7 +10,7 @@ import kotlin.math.*
  * パスデータを保持し、パスの操作ロジックを提供します。
  */
 class Path2D(
-    private val commandQueue: LinkedList<RenderCommand>, // Retain commandQueue for arc/bezier approximation
+    private val commandQueue: LinkedList<RenderCommand2D>, // Retain commandQueue for arc/bezier approximation
 ) {
     private val currentSegments: MutableList<PathSegment> = mutableListOf()
     private var lastPoint: Pair<Float, Float>? = null

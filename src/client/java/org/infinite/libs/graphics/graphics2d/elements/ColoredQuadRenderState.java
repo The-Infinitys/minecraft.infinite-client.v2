@@ -68,6 +68,7 @@ public record ColoredQuadRenderState(
         getBounds(x0, y0, x1, y1, x2, y2, x3, y3, matrix3x2fc, scissorArea));
   }
 
+  @Override
   public void buildVertices(VertexConsumer vertexConsumer) {
     vertexConsumer.addVertexWith2DPose(this.pose(), this.x0, this.y0).setColor(this.col0);
     vertexConsumer.addVertexWith2DPose(this.pose(), this.x1, this.y1).setColor(this.col1);

@@ -4,7 +4,7 @@ import net.minecraft.client.DeltaTracker
 import org.infinite.libs.graphics.graphics2d.Graphics2DPrimitivesFill
 import org.infinite.libs.graphics.graphics2d.Graphics2DPrimitivesStroke
 import org.infinite.libs.graphics.graphics2d.Graphics2DTransformations
-import org.infinite.libs.graphics.graphics2d.structs.RenderCommand
+import org.infinite.libs.graphics.graphics2d.structs.RenderCommand2D
 import org.infinite.libs.graphics.graphics2d.structs.StrokeStyle
 import org.infinite.libs.graphics.graphics2d.structs.TextStyle
 import org.infinite.libs.graphics.graphics2d.system.Path2D
@@ -28,7 +28,7 @@ open class Graphics2D(
     var textStyle: TextStyle = TextStyle()
     var enablePathGradient: Boolean = false // New property for gradient control
 
-    private val commandQueue = LinkedList<RenderCommand>()
+    private val commandQueue = LinkedList<RenderCommand2D>()
 
     // Path2Dのインスタンスを追加
     private val path2D = Path2D(commandQueue)
@@ -204,17 +204,17 @@ open class Graphics2D(
         val shadow = textStyle.shadow
         val size = textStyle.size
         val font = textStyle.font
-        commandQueue.add(RenderCommand.Text(font, text, x, y, fillStyle, shadow, size))
+        commandQueue.add(RenderCommand2D.Text(font, text, x, y, fillStyle, shadow, size))
     }
 
     fun textCentered(text: String, x: Float, y: Float) {
         val shadow = textStyle.shadow
         val size = textStyle.size
         val font = textStyle.font
-        commandQueue.add(RenderCommand.TextCentered(font, text, x, y, fillStyle, shadow, size))
+        commandQueue.add(RenderCommand2D.TextCentered(font, text, x, y, fillStyle, shadow, size))
     }
     private fun pushTransformCommand() {
-        commandQueue.add(RenderCommand.SetTransform(Matrix3x2f(transformMatrix)))
+        commandQueue.add(RenderCommand2D.SetTransform(Matrix3x2f(transformMatrix)))
     }
 
     // 変換メソッドをオーバーライド/修正
@@ -235,15 +235,15 @@ open class Graphics2D(
 
     // --- クリッピング (GuiGraphics.enableScissor 準拠) ---
     fun enableScissor(x: Int, y: Int, width: Int, height: Int) {
-        commandQueue.add(RenderCommand.EnableScissor(x, y, width, height))
+        commandQueue.add(RenderCommand2D.EnableScissor(x, y, width, height))
     }
 
     fun disableScissor() {
-        commandQueue.add(RenderCommand.DisableScissor)
+        commandQueue.add(RenderCommand2D.DisableScissor)
     }
 
     /**
      * 登録された順にコマンドを取り出します
      */
-    fun commands(): List<RenderCommand> = commandQueue.toList()
+    fun commands(): List<RenderCommand2D> = commandQueue.toList()
 }

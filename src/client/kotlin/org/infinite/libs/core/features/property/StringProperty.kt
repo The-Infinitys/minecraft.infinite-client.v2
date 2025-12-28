@@ -11,14 +11,13 @@ class StringProperty(
     default: String,
     val regex: Regex? = null,
 ) : Property<String>(default) {
-    private var _value: String = default
 
-    override var value: String
-        get() = _value
-        set(newValue) {
-            // 正規表現が指定されている場合、マッチしたときのみ更新
-            if (regex == null || regex.matches(newValue)) {
-                _value = newValue
-            }
+    override fun filterValue(newValue: String): String {
+        // 正規表現にマッチしない場合は、変更を拒否して現在の値を返す
+        return if (regex == null || regex.matches(newValue)) {
+            newValue
+        } else {
+            value
         }
+    }
 }
