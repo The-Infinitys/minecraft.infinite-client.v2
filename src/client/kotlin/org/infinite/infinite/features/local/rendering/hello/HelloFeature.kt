@@ -1,4 +1,4 @@
-package org.infinite.ultimate.features.local.rendering.hello
+package org.infinite.infinite.features.local.rendering.hello
 
 import org.infinite.libs.core.features.feature.LocalFeature
 import org.infinite.libs.core.features.property.number.IntProperty

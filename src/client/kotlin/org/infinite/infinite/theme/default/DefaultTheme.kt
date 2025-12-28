@@ -1,4 +1,4 @@
-package org.infinite.ultimate.theme.default
+package org.infinite.infinite.theme.default
 
 import org.infinite.libs.ui.theme.Theme
 

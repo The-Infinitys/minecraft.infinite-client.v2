@@ -4,7 +4,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
-import org.infinite.UltimateClient
+import org.infinite.InfiniteClient
 import org.infinite.libs.core.features.Feature
 import org.infinite.libs.interfaces.MinecraftInterface
 import org.infinite.libs.log.LogSystem
@@ -12,7 +12,7 @@ import org.infinite.utils.toLowerSnakeCase
 import java.io.File
 
 object ConfigManager : MinecraftInterface() {
-    private val baseDir = File(client.run { gameDirectory }, "ultimate/config")
+    private val baseDir = File(client.run { gameDirectory }, "infinite/config")
 
     private val json: Json by lazy {
         Json {
@@ -62,12 +62,12 @@ object ConfigManager : MinecraftInterface() {
     // --- Save ---
 
     fun saveGlobal() {
-        val data = UltimateClient.globalFeatures.data()
+        val data = InfiniteClient.globalFeatures.data()
         save(File(baseDir, "global.json"), data)
     }
 
     fun saveLocal() {
-        val data = UltimateClient.localFeatures.data()
+        val data = InfiniteClient.localFeatures.data()
         getLocalPath()?.let { path ->
             save(File(baseDir, "local/$path/local.json"), data)
         }
@@ -142,13 +142,13 @@ object ConfigManager : MinecraftInterface() {
 
     fun loadGlobal() {
         val file = File(baseDir, "global.json")
-        if (file.exists()) applyData(UltimateClient.globalFeatures, load(file))
+        if (file.exists()) applyData(InfiniteClient.globalFeatures, load(file))
     }
 
     fun loadLocal() {
         getLocalPath()?.let { path ->
             val file = File(baseDir, "local/$path/local.json")
-            if (file.exists()) applyData(UltimateClient.localFeatures, load(file))
+            if (file.exists()) applyData(InfiniteClient.localFeatures, load(file))
         }
     }
 

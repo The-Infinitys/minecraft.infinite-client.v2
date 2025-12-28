@@ -5,8 +5,8 @@ import net.minecraft.network.chat.Style;
 
 public interface IModernFontManager {
   @SuppressWarnings("unused")
-  FontSet ultimate$fontSetFromStyle(Style style);
+  FontSet infinite$fontSetFromStyle(Style style);
 
   @SuppressWarnings("unused")
-  FontSet ultimate$fontSetFromIdentifier(String name);
+  FontSet infinite$fontSetFromIdentifier(String name);
 }

@@ -7,7 +7,7 @@ import net.minecraft.server.packs.PackType
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener
 import net.minecraft.util.profiling.ProfilerFiller
-import org.infinite.UltimateClient
+import org.infinite.InfiniteClient
 import org.infinite.libs.log.LogSystem
 import java.util.LinkedList
 
@@ -19,8 +19,8 @@ object TranslationChecker : SimplePreparableReloadListener<Unit>() {
 
     private val allTranslations: List<String>
         get() {
-            val localFeatures = UltimateClient.localFeatures.translations
-            val globalFeatures = UltimateClient.globalFeatures.translations
+            val localFeatures = InfiniteClient.localFeatures.translations
+            val globalFeatures = InfiniteClient.globalFeatures.translations
             return localFeatures + globalFeatures + additionalTranslationList
         }
 

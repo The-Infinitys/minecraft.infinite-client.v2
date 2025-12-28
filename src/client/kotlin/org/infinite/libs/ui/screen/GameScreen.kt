@@ -3,15 +3,15 @@ package org.infinite.libs.ui.screen
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
-import org.infinite.UltimateClient
+import org.infinite.InfiniteClient
 import org.infinite.libs.ui.widgets.LocalCategoryWidget
 
-class GameScreen : Screen(Component.literal("Ultimate Client")) {
+class GameScreen : Screen(Component.literal("Infinite Client")) {
     private var _pageIndex: Int = 0
     var pageIndex: Int
         get() = _pageIndex
         set(value) {
-            _pageIndex = value % UltimateClient.localFeatures.categories.size
+            _pageIndex = value % InfiniteClient.localFeatures.categories.size
         }
 
     override fun init() {
@@ -28,7 +28,7 @@ class GameScreen : Screen(Component.literal("Ultimate Client")) {
         val startY = (this.height - targetHeight) / 2
 
         // ウィジェットの配置（例として縦に並べる場合）
-        val categories = UltimateClient.localFeatures.categories
+        val categories = InfiniteClient.localFeatures.categories
         var currentY = startY + 10
 
         for ((index, entry) in categories.entries.withIndex()) {

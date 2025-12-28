@@ -1,7 +1,7 @@
 package org.infinite.libs.core.tick
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
-import org.infinite.UltimateClient
+import org.infinite.InfiniteClient
 import org.infinite.libs.core.TickInterface
 
 object SystemTicks : TickInterface {
@@ -9,7 +9,7 @@ object SystemTicks : TickInterface {
     }
 
     override fun onEndTick() {
-        UltimateClient.localFeatures.keyBindingActions()
+        InfiniteClient.localFeatures.keyBindingActions()
     }
 
     fun register() {

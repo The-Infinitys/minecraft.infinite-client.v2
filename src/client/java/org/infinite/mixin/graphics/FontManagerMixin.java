@@ -5,9 +5,9 @@ import net.minecraft.client.gui.font.FontManager;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
-import org.infinite.UltimateClient;
+import org.infinite.InfiniteClient;
+import org.infinite.infinite.features.global.rendering.font.InfiniteFontFeature;
 import org.infinite.libs.graphics.graphics2d.text.IModernFontManager;
-import org.infinite.ultimate.features.global.rendering.font.UltimateFontFeature;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,18 +18,18 @@ public abstract class FontManagerMixin implements IModernFontManager {
   @Shadow @Final private Map<Identifier, FontSet> fontSets;
 
   @Override
-  public @NonNull FontSet ultimate$fontSetFromStyle(Style style) {
+  public @NonNull FontSet infinite$fontSetFromStyle(Style style) {
     String id;
-    UltimateFontFeature ultimateFontFeature =
-        UltimateClient.INSTANCE.getGlobalFeatures().getRendering().getUltimateFontFeature();
+    InfiniteFontFeature infiniteFontFeature =
+        InfiniteClient.INSTANCE.getGlobalFeatures().getRendering().getInfiniteFontFeature();
     if (style.isBold() && style.isItalic()) {
-      id = ultimateFontFeature.getBoldItalicFont().getValue();
+      id = infiniteFontFeature.getBoldItalicFont().getValue();
     } else if (style.isBold()) {
-      id = ultimateFontFeature.getBoldFont().getValue();
+      id = infiniteFontFeature.getBoldFont().getValue();
     } else if (style.isItalic()) {
-      id = ultimateFontFeature.getItalicFont().getValue();
+      id = infiniteFontFeature.getItalicFont().getValue();
     } else {
-      id = ultimateFontFeature.getRegularFont().getValue();
+      id = infiniteFontFeature.getRegularFont().getValue();
     }
     Identifier targetId = Identifier.fromNamespaceAndPath("minecraft", id);
     FontSet set = this.fontSets.get(targetId);
@@ -40,7 +40,7 @@ public abstract class FontManagerMixin implements IModernFontManager {
   }
 
   @Override
-  public @NonNull FontSet ultimate$fontSetFromIdentifier(@NonNull String name) {
+  public @NonNull FontSet infinite$fontSetFromIdentifier(@NonNull String name) {
     Identifier targetId = Identifier.fromNamespaceAndPath("minecraft", name);
     FontSet set = this.fontSets.get(targetId);
     if (set == null) {

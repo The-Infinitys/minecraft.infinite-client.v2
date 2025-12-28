@@ -1,6 +1,6 @@
-package org.infinite.ultimate.features.global.rendering.theme
+package org.infinite.infinite.features.global.rendering.theme
 
-import org.infinite.UltimateClient
+import org.infinite.InfiniteClient
 import org.infinite.libs.core.features.feature.GlobalFeature
 import org.infinite.libs.core.features.property.SelectionProperty
 
@@ -13,7 +13,7 @@ class ThemeFeature : GlobalFeature() {
         emptyList(),
     ) {
         override val options: List<String>
-            get() = UltimateClient.themeManager.getRegisteredThemeNames()
+            get() = InfiniteClient.themeManager.getRegisteredThemeNames()
     }
 
     // デリゲートプロパティとして登録

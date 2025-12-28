@@ -15,7 +15,7 @@ class TextRenderer(private val guiGraphics: GuiGraphics) : MinecraftInterface() 
     private fun font(name: String): Font {
         val client = client as MinecraftAccessor
         val fontManager = client.fontManager as IModernFontManager
-        val fontSet = fontManager.`ultimate$fontSetFromIdentifier`(name)
+        val fontSet = fontManager.`infinite$fontSetFromIdentifier`(name)
         return fromFontSet(fontSet)
     }
 

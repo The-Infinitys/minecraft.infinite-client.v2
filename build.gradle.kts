@@ -72,7 +72,7 @@ tasks {
 
     loom {
         splitEnvironmentSourceSets()
-        accessWidenerPath = file("src/main/resources/ultimate.accesswidener")
+        accessWidenerPath = file("src/main/resources/infinite.accesswidener")
     }
 
     fabricApi {

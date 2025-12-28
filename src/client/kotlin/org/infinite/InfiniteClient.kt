@@ -6,6 +6,10 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.minecraft.client.KeyMapping
+import org.infinite.infinite.InfiniteGlobalFeatures
+import org.infinite.infinite.InfiniteLocalFeatures
+import org.infinite.infinite.theme.default.DefaultTheme
+import org.infinite.infinite.theme.infinite.InfiniteTheme
 import org.infinite.libs.config.ConfigManager
 import org.infinite.libs.core.features.feature.LocalFeature
 import org.infinite.libs.core.tick.SystemTicks
@@ -16,19 +20,15 @@ import org.infinite.libs.translation.TranslationChecker
 import org.infinite.libs.ui.screen.GameScreen
 import org.infinite.libs.ui.theme.Theme
 import org.infinite.libs.ui.theme.ThemeManager
-import org.infinite.ultimate.UltimateGlobalFeatures
-import org.infinite.ultimate.UltimateLocalFeatures
-import org.infinite.ultimate.theme.default.DefaultTheme
-import org.infinite.ultimate.theme.infinite.InfiniteTheme
 import org.lwjgl.glfw.GLFW
 
-object UltimateClient : MinecraftInterface(), ClientModInitializer {
-    val globalFeatures = UltimateGlobalFeatures()
-    val localFeatures = UltimateLocalFeatures()
+object InfiniteClient : MinecraftInterface(), ClientModInitializer {
+    val globalFeatures = InfiniteGlobalFeatures()
+    val localFeatures = InfiniteLocalFeatures()
     val gameScreenBindingPair = LocalFeature.BindingPair(
         KeyBindingHelper.registerKeyBinding(
             KeyMapping(
-                "key.ultimate.game_options",
+                "key.infinite.game_options",
                 GLFW.GLFW_KEY_RIGHT_SHIFT,
                 KeyMapping.Category.GAMEPLAY,
             ),

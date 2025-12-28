@@ -12,7 +12,7 @@ import net.minecraft.client.gui.render.state.GuiTextRenderState;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
-import org.infinite.UltimateClient;
+import org.infinite.InfiniteClient;
 import org.infinite.libs.graphics.graphics2d.text.IModernFontManager;
 import org.infinite.libs.graphics.text.FontFromFontSetKt;
 import org.infinite.libs.graphics.text.ModernTextRenderer;
@@ -92,15 +92,15 @@ public class GuiGraphicsMixin {
     if (ARGB.alpha(k) == 0) {
       return;
     }
-    if (UltimateClient.INSTANCE
+    if (InfiniteClient.INSTANCE
         .getGlobalFeatures()
         .getRendering()
-        .getUltimateFontFeature()
+        .getInfiniteFontFeature()
         .isEnabled()) {
       IModernFontManager fontManager =
           (IModernFontManager) ((MinecraftAccessor) this.minecraft).getFontManager();
       Style originalStyle = extractStyle(formattedCharSequence);
-      FontSet fontSet = fontManager.ultimate$fontSetFromStyle(originalStyle);
+      FontSet fontSet = fontManager.infinite$fontSetFromStyle(originalStyle);
       Font modernFont = FontFromFontSetKt.fromFontSet(fontSet);
       FormattedCharSequence noBoldSequence = stripBold(formattedCharSequence);
       this.guiRenderState.submitText(

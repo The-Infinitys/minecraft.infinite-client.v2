@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import net.minecraft.util.ARGB
 import net.minecraft.util.FormattedCharSequence
-import org.infinite.UltimateClient
+import org.infinite.InfiniteClient
 import org.infinite.libs.graphics.graphics2d.text.IModernFontManager
 import org.infinite.mixin.graphics.GuiGraphicsAccessor
 import org.infinite.mixin.graphics.MinecraftAccessor
@@ -51,9 +51,9 @@ class ModernTextRenderer(
 
     override fun accept(style: Style) {
         originalAccept(style)
-        val ultimateFontFeature =
-            UltimateClient.globalFeatures.rendering.ultimateFontFeature
-        val shouldEnable = ultimateFontFeature.isEnabled()
+        val infiniteFontFeature =
+            InfiniteClient.globalFeatures.rendering.infiniteFontFeature
+        val shouldEnable = infiniteFontFeature.isEnabled()
         if (!shouldEnable) {
             return
         }
@@ -66,9 +66,9 @@ class ModernTextRenderer(
         parameters: ActiveTextCollector.Parameters,
         formattedCharSequence: FormattedCharSequence,
     ) {
-        val ultimateFontFeature =
-            UltimateClient.globalFeatures.rendering.ultimateFontFeature
-        val shouldEnable = ultimateFontFeature.isEnabled()
+        val infiniteFontFeature =
+            InfiniteClient.globalFeatures.rendering.infiniteFontFeature
+        val shouldEnable = infiniteFontFeature.isEnabled()
         if (!shouldEnable) {
             originalAccept(textAlignment, x, y, parameters, formattedCharSequence)
             return
@@ -84,7 +84,7 @@ class ModernTextRenderer(
             originalStyle = style
             false
         }
-        val fontSet = fontManager.`ultimate$fontSetFromStyle`(originalStyle)
+        val fontSet = fontManager.`infinite$fontSetFromStyle`(originalStyle)
         val font = fromFontSet(fontSet)
 
         val noBoldSequence = FormattedCharSequence { visitor ->

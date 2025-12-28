@@ -1,2 +1,2 @@
-# minecraft.ultimate-client
+# minecraft.infinite-client
 Next of Infinite CLient

@@ -63,7 +63,7 @@ object LogSystem : MinecraftInterface() {
         return Component
             .literal("[")
             .withStyle(ChatFormatting.BOLD)
-            .append(rainbowText("Ultimate Client").withStyle(ChatFormatting.BOLD))
+            .append(rainbowText("Infinite Client").withStyle(ChatFormatting.BOLD))
             .append(Component.literal(prefixType).withStyle(style))
             .append(Component.literal("]: ").withStyle(ChatFormatting.RESET))
     }
@@ -109,7 +109,7 @@ object LogSystem : MinecraftInterface() {
     }
 
     /**
-     * 初期化：UltimateClient から呼び出す
+     * 初期化：InfiniteClient から呼び出す
      */
     fun init() {
         ClientTickEvents.END_CLIENT_TICK.register { client ->

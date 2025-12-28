@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "ultimate-client",
+  "id": "infinite-client",
   "version": "${version}",
-  "name": "Ultimate Client",
+  "name": "Infinite Client",
   "description": "This is an example description! Tell everyone what your mod is about!",
   "authors": [
     "Me!"
@@ -12,25 +12,25 @@
     "sources": "https://github.com/FabricMC/fabric-example-mod"
   },
   "license": "MIT",
-  "icon": "assets/ultimate-client/icon.png",
+  "icon": "assets/infinite-client/icon.png",
   "environment": "client",
   "entrypoints": {
     "client": [
       {
-        "value": "org.infinite.UltimateClient",
+        "value": "org.infinite.InfiniteClient",
         "adapter": "kotlin"
       }
     ],
     "fabric-datagen": [
       {
-        "value": "org.infinite.UltimateClientDataGenerator",
+        "value": "org.infinite.InfiniteClientDataGenerator",
         "adapter": "kotlin"
       }
     ]
   },
   "mixins": [
     {
-      "config": "ultimate-client.mixins.json",
+      "config": "infinite-client.mixins.json",
       "environment": "client"
     }
   ],
@@ -41,7 +41,7 @@
     "fabric-api": "*",
     "fabric-language-kotlin": "*"
   },
-  "accessWidener": "ultimate.accesswidener",
+  "accessWidener": "infinite.accesswidener",
   "suggests": {
     "another-mod": "*"
   }

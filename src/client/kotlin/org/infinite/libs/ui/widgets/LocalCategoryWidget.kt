@@ -6,7 +6,7 @@ import net.minecraft.client.gui.components.AbstractWidget
 import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.network.chat.Component
-import org.infinite.UltimateClient
+import org.infinite.InfiniteClient
 import org.infinite.libs.core.features.categories.category.LocalCategory
 import org.infinite.libs.graphics.bundle.Graphics2DRenderer
 import org.infinite.libs.ui.screen.GameScreen
@@ -28,7 +28,7 @@ class LocalCategoryWidget(
 
     override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
         val graphics2DRenderer = Graphics2DRenderer(guiGraphics, Minecraft.getInstance().deltaTracker)
-        val theme = UltimateClient.theme
+        val theme = InfiniteClient.theme
 
         // --- アニメーション計算 ---
         val elapsed = System.currentTimeMillis() - spawnTime

@@ -116,7 +116,7 @@ open class Feature : MinecraftInterface() {
     }
 
     private val translationKey: String by lazy {
-        val modId = "ultimate"
+        val modId = "infinite"
         val translationCategory = "features"
         val fullName = this::class.qualifiedName ?: throw IllegalArgumentException("Qualified name not found")
         val parts = fullName.split(".")

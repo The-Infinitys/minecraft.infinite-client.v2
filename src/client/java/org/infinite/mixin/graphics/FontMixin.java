@@ -9,7 +9,7 @@ import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
-import org.infinite.UltimateClient;
+import org.infinite.InfiniteClient;
 import org.infinite.libs.graphics.graphics2d.text.IModernFontManager;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,7 +31,7 @@ public abstract class FontMixin implements StringSplitter.WidthProvider {
   /** String (プレーンテキスト) の幅計算をフック */
   @Inject(method = "width(Ljava/lang/String;)I", at = @At("HEAD"), cancellable = true)
   public void onStringWidth(String string, CallbackInfoReturnable<Integer> cir) {
-    if (isUltimateFontEnabled()) {
+    if (isInfiniteFontEnabled()) {
       // StringSplitterのstringWidthはfloatを返すため、intにキャスト
       cir.setReturnValue((int) Math.ceil(this.modernStringSplitter.stringWidth(string)));
     }
@@ -44,7 +44,7 @@ public abstract class FontMixin implements StringSplitter.WidthProvider {
       cancellable = true)
   public void onFormattedTextWidth(
       FormattedText formattedText, CallbackInfoReturnable<Integer> cir) {
-    if (isUltimateFontEnabled()) {
+    if (isInfiniteFontEnabled()) {
       cir.setReturnValue((int) Math.ceil(this.modernStringSplitter.stringWidth(formattedText)));
     }
   }
@@ -56,7 +56,7 @@ public abstract class FontMixin implements StringSplitter.WidthProvider {
       cancellable = true)
   public void onCharSequenceWidth(
       FormattedCharSequence sequence, CallbackInfoReturnable<Integer> cir) {
-    if (isUltimateFontEnabled()) {
+    if (isInfiniteFontEnabled()) {
       cir.setReturnValue((int) Math.ceil(this.modernStringSplitter.stringWidth(sequence)));
     }
   }
@@ -67,7 +67,7 @@ public abstract class FontMixin implements StringSplitter.WidthProvider {
     MinecraftAccessor client = (MinecraftAccessor) Minecraft.getInstance();
     IModernFontManager fontManager = (IModernFontManager) client.getFontManager();
     @SuppressWarnings("resource")
-    FontSet fontSet = fontManager.ultimate$fontSetFromStyle(style);
+    FontSet fontSet = fontManager.infinite$fontSetFromStyle(style);
     if (fontSet != null) {
       return fontSet.source(false).getGlyph(codePoint).info().getAdvance(false);
     } else {
@@ -79,11 +79,11 @@ public abstract class FontMixin implements StringSplitter.WidthProvider {
   }
 
   @Unique
-  private boolean isUltimateFontEnabled() {
-    return UltimateClient.INSTANCE
+  private boolean isInfiniteFontEnabled() {
+    return InfiniteClient.INSTANCE
         .getGlobalFeatures()
         .getRendering()
-        .getUltimateFontFeature()
+        .getInfiniteFontFeature()
         .isEnabled();
   }
 }

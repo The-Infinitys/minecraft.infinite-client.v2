@@ -60,10 +60,10 @@ abstract class FeatureCategories<
     fun <T : V> getCategory(category: KClass<out T>): T? = _categories[category as K] as? T
 
     /**
-     * 例: ultimate.features.local
+     * 例: infinite.features.local
      */
     private val translationKey: String by lazy {
-        val modId = "ultimate"
+        val modId = "infinite"
         val translationCategory = "features"
         val fullName = this::class.qualifiedName
             ?: throw IllegalArgumentException("Qualified name not found")

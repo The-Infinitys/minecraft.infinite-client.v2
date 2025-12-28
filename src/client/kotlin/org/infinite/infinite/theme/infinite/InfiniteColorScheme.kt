@@ -1,4 +1,4 @@
-package org.infinite.ultimate.theme.infinite
+package org.infinite.infinite.theme.infinite
 
 import org.infinite.libs.ui.theme.ColorScheme
 
