@@ -29,7 +29,7 @@ open class Graphics2D(
     val realDelta: Float = deltaTracker.realtimeDeltaTicks // Corrected typo here
     open val width: Int = minecraft.window.guiScaledWidth
     open val height: Int = minecraft.window.guiScaledHeight
-    var strokeStyle: StrokeStyle? = null
+    var strokeStyle: StrokeStyle = StrokeStyle()
     var fillStyle: Int = 0xFFFFFFFF.toInt()
     var textStyle: TextStyle = TextStyle()
     var enablePathGradient: Boolean = false // New property for gradient control
@@ -171,12 +171,12 @@ open class Graphics2D(
     }
 
     fun lineTo(x: Float, y: Float) {
-        val style = strokeStyle ?: return
+        val style = strokeStyle
         path2D.lineTo(x, y, style)
     }
 
     fun closePath() {
-        val style = strokeStyle ?: return
+        val style = strokeStyle
         path2D.closePath(style)
     }
 
@@ -186,17 +186,17 @@ open class Graphics2D(
     }
 
     fun arc(x: Float, y: Float, radius: Float, startAngle: Float, endAngle: Float, counterclockwise: Boolean = false) {
-        val style = strokeStyle ?: return
+        val style = strokeStyle
         path2D.arc(x, y, radius, startAngle, endAngle, counterclockwise, style)
     }
 
     fun arcTo(x1: Float, y1: Float, x2: Float, y2: Float, radius: Float) {
-        val style = strokeStyle ?: return
+        val style = strokeStyle
         path2D.arcTo(x1, y1, x2, y2, radius, style)
     }
 
     fun bezierCurveTo(cp1x: Float, cp1y: Float, cp2x: Float, cp2y: Float, x: Float, y: Float) {
-        val style = strokeStyle ?: return
+        val style = strokeStyle
         path2D.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y, style)
     }
 

@@ -18,15 +18,15 @@ abstract class AbstractCarouselScreen<T>(title: Component) : Screen(title) {
         get() = carouselWidgets[pageIndex]
     private var _pageIndex: Int = 0
     protected abstract val dataSource: List<T>
-    protected val pageSize get() = dataSource.size
+    val pageSize get() = dataSource.size
 
     private val screenWidth: Float
         get() = minecraft.window.guiScaledWidth.toFloat()
-    val screenHeight: Float
+    private val screenHeight: Float
         get() = minecraft.window.guiScaledHeight.toFloat()
-    private val widgetWidth: Float
+    val widgetWidth: Float
         get() = (screenWidth * 0.5f).coerceAtLeast(512f).coerceAtMost(screenWidth * 0.9f)
-    private val widgetHeight: Float
+    val widgetHeight: Float
         get() = screenHeight * 0.8f
     private var animatedIndex: Float = 0f
     protected open val lerpFactor = 0.5f

@@ -1,11 +1,16 @@
 package org.infinite.infinite.ui.widget
 
-import net.minecraft.client.gui.components.Button
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.components.StringWidget
 import net.minecraft.network.chat.Component
 import org.infinite.InfiniteClient
 import org.infinite.libs.core.features.categories.category.LocalCategory
+import org.infinite.libs.graphics.graphics2d.text.IModernFontManager
+import org.infinite.libs.graphics.text.fromFontSet
 import org.infinite.libs.ui.screen.AbstractCarouselScreen
 import org.infinite.libs.ui.widgets.AbstractCarouselWidget
+import org.infinite.mixin.graphics.MinecraftAccessor
+import kotlin.math.roundToInt
 
 class LocalCategoryWidget(
     x: Int,
@@ -25,32 +30,64 @@ class LocalCategoryWidget(
     index,
     Component.translatable(category.translation()),
 ) {
-    private val innerButton: Button
-    private val spawnTime = System.currentTimeMillis()
-    private val animationDuration = 500L
+    private data class WidgetComponents(
+        val titleComponent: StringWidget,
+    )
+
+    private val widgetComponents: WidgetComponents
 
     init {
-        val btnWidth = 60
-        val btnHeight = 20
-        val btnX = x + (width - btnWidth) / 2
-        val btnY = y + (height - btnHeight) / 2
-        innerButton = Button.builder(Component.literal("Select")) { _ ->
-            // クリック時のアクション
-            this.onSelected(category)
-        }.bounds(btnX, btnY, btnWidth, btnHeight).build()
-        addInnerWidget(innerButton)
+        val minecraft = Minecraft.getInstance()
+        val minecraftAccessor = minecraft as MinecraftAccessor
+        val fontManager = minecraftAccessor.fontManager as IModernFontManager
+        val fontSet = fontManager.`infinite$fontSetFromIdentifier`("infinite_regular")
+        val font = fromFontSet(fontSet)
+        val titleText = Component.translatable(category.translation())
+        val width = parent.widgetWidth.roundToInt()
+//        val height = parent.widgetHeight.roundToInt()
+        val titleComponentWidth = font.width(titleText)
+        val titleComponentHeight = font.lineHeight
+        val title = StringWidget(
+            (width - titleComponentWidth) / 2,
+            titleComponentHeight * 2,
+            font.width(titleText),
+            font.lineHeight,
+            titleText,
+            font,
+        )
+
+        widgetComponents = WidgetComponents(title)
+        addInnerWidget(widgetComponents.titleComponent)
+    }
+
+    private val spawnTime = System.currentTimeMillis()
+    private val animationDuration = 500L
+    private val thisPageProgress = thisIndex.toFloat() / parent.pageSize
+
+    init {
+        addInnerWidget(widgetComponents.titleComponent)
     }
 
     override fun render(graphics2D: AbstractCarouselScreen.WidgetGraphics2D): AbstractCarouselScreen.WidgetGraphics2D {
+        val theme = InfiniteClient.theme
+        val colorScheme = theme.colorScheme
         val alpha = ((System.currentTimeMillis() - spawnTime).toFloat() / animationDuration * 0.5f).coerceIn(0f, 0.5f)
-        InfiniteClient.theme.renderBackGround(
+        val width =
+            graphics2D.width.toFloat()
+        val height =
+            graphics2D.height.toFloat()
+        theme.renderBackGround(
             0f,
             0f,
-            graphics2D.width.toFloat(),
-            graphics2D.height.toFloat(),
+            width,
+            height,
             graphics2D,
             alpha,
         )
+        graphics2D.strokeStyle.width = 2f
+        val startColor = colorScheme.color(360 * thisPageProgress, 1f, 0.5f, alpha)
+        val endColor = colorScheme.color(360 * (thisPageProgress + 0.5f / parent.pageSize), 1f, 0.5f, alpha)
+        graphics2D.strokeRect(0f, 0f, width, height, startColor, startColor, endColor, endColor)
         return graphics2D
     }
 
