@@ -103,46 +103,60 @@ abstract class AbstractCarouselScreen<T>(title: Component) : Screen(title) {
     }
 
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
-        // アニメーション更新
-        val target = pageIndex.toFloat()
-        var diff = target - animatedIndex
-        if (diff > pageSize / 2f) diff -= pageSize
-        if (diff < -pageSize / 2f) diff += pageSize
+        // 1. アニメーション更新
+        if (!isDragging) {
+            // ドラッグ中でない時だけ pageIndex へ追従
+            val target = pageIndex.toFloat()
+            var diff = target - animatedIndex
+            if (diff > pageSize / 2f) diff -= pageSize
+            if (diff < -pageSize / 2f) diff += pageSize
 
-        if (abs(diff) < 0.001f) {
-            animatedIndex = target
-        } else {
-            animatedIndex += diff * lerpFactor
+            if (abs(diff) < 0.001f) {
+                animatedIndex = target
+            } else {
+                animatedIndex += diff * lerpFactor
+            }
         }
 
         val renderSystem2D = RenderSystem2D(guiGraphics)
-        // 基準となるウィジェットのサイズ
 
-        val bundles = carouselWidgets.map { widget ->
+        // 2. 各Widgetのフレーム計算と描画データの準備
+        val renderData = carouselWidgets.map { widget ->
             val frame = calculateWidgetFrame(widget.thisIndex)
             widget.widgetFrameData = frame
-            // --- 当たり判定の更新処理を追加 ---
-            // 3D空間の座標をスクリーン座標に変換し、ウィジェットのプロパティに適用
+
+            // 当たり判定・座標の更新
             val scaledWidth = (widgetWidth * frame.scale).toInt()
             val scaledHeight = (widgetHeight * frame.scale).toInt()
-
-            // Graphics2Dでのtranslate(sw/2, sh/2) + translate(frame.x, frame.y) に合わせる
-            // 中央基準から左上基準に変換
             widget.x = (screenWidth / 2f + frame.x - scaledWidth / 2f).toInt()
             widget.y = (screenHeight / 2f + frame.y - scaledHeight / 2f).toInt()
             widget.width = scaledWidth
             widget.height = scaledHeight
-            // ------------------------------
 
+            // Widget固有の描画コマンド生成
             val g2d = WidgetGraphics2D(minecraft.deltaTracker, frame, screenWidth, screenHeight)
             val resultG2d = widget.render(g2d)
-            frame.z to resultG2d.commands()
+
+            // Z値, コマンド, Widget本体を保持
+            RenderBundle(frame.z, resultG2d.commands(), widget)
         }
-        // 重なり順（Zオーダー）を考慮して描画
-        val sortedCommands = bundles.sortedByDescending { it.first }.flatMap { it.second }
-        renderSystem2D.render(sortedCommands)
-        carouselWidgets[pageIndex].renderWidget(guiGraphics, mouseX, mouseY, delta)
+
+        // 3. 重なり順（Z-Order）のソート
+        // Z値が大きい（＝奥にある）ものから順に描画（Painter's Algorithm）
+        val sortedBundles = renderData.sortedByDescending { it.z }
+
+        for (bundle in sortedBundles) {
+            renderSystem2D.render(bundle.commands)
+            bundle.widget.render(guiGraphics, mouseX, mouseY, delta)
+        }
     }
+
+    // 可読性のためのヘルパーデータクラス
+    private data class RenderBundle<T>(
+        val z: Float,
+        val commands: List<RenderCommand2D>,
+        val widget: AbstractCarouselWidget<T>,
+    )
 
     override fun keyPressed(keyEvent: KeyEvent): Boolean {
         when (keyEvent.key) {
@@ -153,15 +167,65 @@ abstract class AbstractCarouselScreen<T>(title: Component) : Screen(title) {
         return true
     }
 
+    private val sortedWidgets
+        get() = carouselWidgets.sortedBy { calculateWidgetFrame(it.thisIndex).z }
+
+    override fun mouseMoved(x: Double, y: Double) {
+        for (widget in sortedWidgets) {
+            widget.mouseMoved(x, y)
+        }
+        super.mouseMoved(x, y)
+    }
+
+    private var isDragging = false
+    private var dragVelocity = 1.0f // 慣性をつける場合に利用可能
+
     override fun mouseClicked(mouseButtonEvent: MouseButtonEvent, bl: Boolean): Boolean {
-        // Z値が手前（frame.z が小さい）のものから順にクリック判定を行う
-        val sortedWidgets = carouselWidgets.sortedBy { calculateWidgetFrame(it.thisIndex).z }
         for (widget in sortedWidgets) {
             if (widget.mouseClicked(mouseButtonEvent, bl)) {
                 this.focused = widget
                 return true
             }
         }
-        return super.mouseClicked(mouseButtonEvent, bl)
+
+        // Widget以外をクリックした場合、ドラッグ開始
+        isDragging = true
+        return true
+    }
+
+    override fun mouseReleased(mouseButtonEvent: MouseButtonEvent): Boolean {
+        if (isDragging) {
+            isDragging = false
+            // ドラッグ終了時、現在のアニメーション位置に最も近いページをpageIndexに設定してスナップさせる
+            pageIndex = animatedIndex.roundToInt()
+        }
+
+        for (widget in sortedWidgets) {
+            if (widget.mouseReleased(mouseButtonEvent)) return true
+        }
+        return super.mouseReleased(mouseButtonEvent)
+    }
+
+    override fun mouseDragged(mouseButtonEvent: MouseButtonEvent, dragX: Double, dragY: Double): Boolean {
+        // Widgetがドラッグを処理した場合はそちらを優先
+        for (widget in sortedWidgets) {
+            if (widget.mouseDragged(mouseButtonEvent, dragX, dragY)) {
+                return true
+            }
+        }
+        if (isDragging && pageSize > 0) {
+            val sensitivity = dragVelocity / (screenWidth * 0.8f)
+            val deltaIndex = dragX.toFloat() * sensitivity * pageSize
+
+            // インデックスを更新（逆回転にする場合は -=）
+            animatedIndex -= deltaIndex
+
+            // 範囲内に収める（ループ処理）
+            while (animatedIndex < 0) animatedIndex += pageSize
+            while (animatedIndex >= pageSize) animatedIndex -= pageSize
+
+            return true
+        }
+        return super.mouseDragged(mouseButtonEvent, dragX, dragY)
     }
 }
