@@ -1,6 +1,5 @@
 package org.infinite.libs.graphics.graphics2d.structs
 
-import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
 import org.joml.Matrix3x2f
 
@@ -70,18 +69,16 @@ sealed interface RenderCommand2D {
     data class EnableScissor(val x: Int, val y: Int, val width: Int, val height: Int) : RenderCommand2D
     object DisableScissor : RenderCommand2D
     data class DrawTexture(
-        val identifier: Identifier,
+        val image: Image,
         val x: Float,
         val y: Float,
         val width: Float,
         val height: Float,
-        val u: Float,
-        val v: Float,
-        val uWidth: Float,
-        val vHeight: Float,
-        val textureWidth: Float,
-        val textureHeight: Float,
-        val color: Int, // アルファ値や乗算色の制御用
+        val u: Int,
+        val v: Int,
+        val uWidth: Int,
+        val vHeight: Int,
+        val color: Int,
     ) : RenderCommand2D
 
     /**

@@ -1,7 +1,6 @@
 package org.infinite.libs.graphics
 
 import net.minecraft.client.DeltaTracker
-import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
 import org.infinite.libs.core.tick.RenderTicks
@@ -9,6 +8,7 @@ import org.infinite.libs.graphics.graphics2d.Graphics2DPrimitivesFill
 import org.infinite.libs.graphics.graphics2d.Graphics2DPrimitivesStroke
 import org.infinite.libs.graphics.graphics2d.Graphics2DPrimitivesTexture
 import org.infinite.libs.graphics.graphics2d.Graphics2DTransformations
+import org.infinite.libs.graphics.graphics2d.structs.Image
 import org.infinite.libs.graphics.graphics2d.structs.RenderCommand2D
 import org.infinite.libs.graphics.graphics2d.structs.StrokeStyle
 import org.infinite.libs.graphics.graphics2d.structs.TextStyle
@@ -295,32 +295,19 @@ open class Graphics2D(
     }
 
     fun image(
-        identifier: Identifier,
+        image: Image,
         x: Float,
         y: Float,
-        width: Float,
-        height: Float,
-        u: Float,
-        v: Float,
-        uWidth: Float,
-        uHeight: Float,
-        textureWidth: Float,
-        textureHeight: Float,
-        color: Int,
+        width: Float = image.width.toFloat(),
+        height: Float = image.height.toFloat(),
+        u: Int = 0,
+        v: Int = 0,
+        uWidth: Int = image.width,
+        vHeight: Int = image.height,
+        color: Int = 0xFFFFFFFF.toInt(),
     ) {
         textureOperations.drawTexture(
-            identifier,
-            x,
-            y,
-            width,
-            height,
-            u,
-            v,
-            uWidth,
-            uHeight,
-            textureWidth,
-            textureHeight,
-            color,
+            image, x, y, width, height, u, v, uWidth, vHeight, color,
         )
     }
 

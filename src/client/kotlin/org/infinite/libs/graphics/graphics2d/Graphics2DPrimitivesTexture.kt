@@ -1,8 +1,8 @@
 package org.infinite.libs.graphics.graphics2d
 
-import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
 import org.infinite.InfiniteClient
+import org.infinite.libs.graphics.graphics2d.structs.Image
 import org.infinite.libs.graphics.graphics2d.structs.RenderCommand2D
 import org.infinite.libs.graphics.graphics2d.structs.TextStyle
 import java.util.*
@@ -65,22 +65,20 @@ class Graphics2DPrimitivesTexture(
 
     // 汎用テクスチャ描画
     fun drawTexture(
-        identifier: Identifier,
+        image: Image,
         x: Float,
         y: Float,
         width: Float,
         height: Float,
-        u: Float,
-        v: Float,
-        uWidth: Float,
-        vHeight: Float,
-        textureWidth: Float,
-        textureHeight: Float,
+        u: Int,
+        v: Int,
+        uWidth: Int,
+        vHeight: Int,
         color: Int,
     ) {
         commandQueue.add(
             RenderCommand2D.DrawTexture(
-                identifier, x, y, width, height, u, v, uWidth, vHeight, textureWidth, textureHeight, color,
+                image, x, y, width, height, u, v, uWidth, vHeight, color,
             ),
         )
     }

@@ -1,13 +1,11 @@
 package org.infinite.infinite.features.local.rendering.hello
 
-import net.minecraft.world.phys.AABB
 import org.infinite.libs.core.features.feature.LocalFeature
 import org.infinite.libs.core.features.property.number.IntProperty
 import org.infinite.libs.graphics.Graphics2D
 import org.infinite.libs.graphics.Graphics3D
 import org.infinite.libs.graphics.graphics2d.structs.StrokeStyle
 import org.infinite.libs.graphics.graphics2d.structs.TextStyle
-import org.infinite.libs.graphics.graphics3d.structs.ColorBox
 import org.infinite.libs.log.LogSystem
 import org.lwjgl.glfw.GLFW
 import kotlin.math.cos
@@ -219,7 +217,6 @@ class HelloFeature : LocalFeature() {
         graphics2D.textStyle = TextStyle(false, 80f)
         graphics2D.fillStyle = 0xFFFFFFFF.toInt()
         graphics2D.textCentered("Hello, World", graphics2D.width / 2f, graphics2D.height / 2f)
-        val client = net.minecraft.client.Minecraft.getInstance()
         val player = player ?: return graphics2D
         // メインハンドのアイテムを取得（空ならダイヤモンドをダミーで生成）
         val stack = if (!player.mainHandItem.isEmpty) {
@@ -240,17 +237,6 @@ class HelloFeature : LocalFeature() {
 
         // --- 9. 新機能: テクスチャ描画テスト (TextureRenderer) ---
         // 例としてウィジェットのテクスチャ（ボタンなど）を描画
-        val buttonTexture =
-            net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "textures/gui/widgets.png")
-        graphics2D.image(
-            buttonTexture,
-            450f, 500f, // 描画位置
-            200f, 20f, // 描画サイズ (幅, 高さ)
-            0f, 46f, // テクスチャ内のUV座標 (通常のボタンの位置)
-            200f, 20f, // UVの幅・高さ
-            256f, 256f, // テクスチャ全体の解像度
-            0xFFFFFFFF.toInt(), // 色指定（白＝そのまま）
-        )
 
         // --- 10. 新機能: クリッピング (Scissor) テスト ---
         // 指定した矩形範囲外を描画されないように制限する
@@ -288,71 +274,6 @@ class HelloFeature : LocalFeature() {
     }
 
     override fun onLevelRendering(graphics3D: Graphics3D): Graphics3D {
-        val player = player ?: return graphics3D
-        val level = level ?: return graphics3D
-        // --- 1. プレイヤーの足元のブロックを強調表示 (AABB / LinedBox) ---
-        // プレイヤーの現在位置をブロック座標に変換
-        val blockPos = player.blockPosition()
-        val box = AABB(
-            blockPos.x.toDouble(),
-            blockPos.y.toDouble(),
-            blockPos.z.toDouble(),
-            (blockPos.x + 1).toDouble(),
-            (blockPos.y + 1).toDouble(),
-            (blockPos.z + 1).toDouble(),
-        )
-        val color = 0xFF000000.toInt()
-        // 足元を半透明の青い箱で塗りつぶし、白い枠線を描画
-        graphics3D.renderSolidColorBoxes(
-            listOf(
-                ColorBox(color, box),
-            ),
-        )
-        graphics3D.renderLinedBox(box, 0xFFFFFFFF.toInt(), isOverDraw = false)
-
-        // --- 2. 特定の場所（スポーン地点など）へのトレーサー ---
-        val spawnPos = level.respawnData.pos()
-        if (spawnPos != null) {
-            val targetVec = net.minecraft.world.phys.Vec3(
-                spawnPos.x.toDouble() + 0.5,
-                spawnPos.y.toDouble() + 0.5,
-                spawnPos.z.toDouble() + 0.5,
-            )
-            // スポーン地点へ赤い線を引く（壁越しに見えるように isOverDraw = true）
-            graphics3D.renderTracer(targetVec, 0xFFFF0000.toInt(), isOverDraw = true)
-        }
-
-        // --- 3. 動的なアニメーションライン (Line) ---
-        val time = (System.currentTimeMillis() % 10000) / 1000.0
-        val centerX = blockPos.x + 0.5
-        val centerY = blockPos.y + 2.5 // プレイヤーの少し上
-        val centerZ = blockPos.z + 0.5
-        val radius = 2.0
-
-        val endX = centerX + cos(time) * radius
-        val endZ = centerZ + sin(time) * radius
-
-        graphics3D.renderLine(
-            net.minecraft.world.phys.Vec3(centerX, centerY, centerZ),
-            net.minecraft.world.phys.Vec3(endX, centerY, endZ),
-            0xFF00FF00.toInt(), // 緑色
-            isOverDraw = true,
-        )
-
-        // --- 4. 複数の色付きボックスを一括描画テスト ---
-        val scatterBoxes = mutableListOf<ColorBox>()
-        for (i in 1..3) {
-            val offsetBox = box.move(i.toDouble() * 2.0, 0.0, 0.0)
-            scatterBoxes.add(
-
-                ColorBox(
-                    0xFF00FF00.toInt() + (i * 50),
-                    offsetBox,
-                ),
-            )
-        }
-        graphics3D.renderLinedColorBoxes(scatterBoxes)
-
         return graphics3D
     }
 }
